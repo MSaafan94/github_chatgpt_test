@@ -1,0 +1,2162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Document Details Template -->
+        <template id="my_documents_upload" name="My Portal Document Details">
+            <t t-call="portal.portal_layout">
+                <br/>
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">Document :
+                            <span t-field="document.sudo().type_id.name"/>
+                        </h3>
+                        <div class="col-md text-md-right">
+                            <div class="d-inline-block">
+                                <small class="mr-2 mt-1 float-left">
+                                    <b>State:</b>
+                                </small>
+                                <div class="float-left">
+                                    <span t-att-class="'badge badge-success' if document.state=='confirm' else '' 'badge badge-primary' if document.state=='expiry' else '' 'badge badge-danger' if document.state=='renew' else '' 'badge badge-warning' if document.state=='refuse' else '' 'badge badge-light' if document.state=='draft' else '' 'badge badge-info' if document.state=='issue' else ''"
+                                          t-field="document.state"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form t-att-action="'/my/documents/upload/%s' % (document.id)" method="post"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="issue_date">Date of Issue</label>
+                                <span t-if="document.sudo().type_id.require_expire_date" style="color: red;">*</span>
+                                <div t-if="document.sudo().type_id.require_expire_date" class="input-group date">
+                                    <input type="date" name="issue_date" required="required"
+                                           class="form-control date_to" t-att-value="document.issue_date"/>
+                                </div>
+                                <div t-if="not document.sudo().type_id.require_expire_date" class="input-group date">
+                                    <input type="date" name="issue_date" class="form-control date_to"
+                                           t-att-value="document.issue_date"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expiry_date">Date of Expiry</label>
+                                <span t-if="document.sudo().type_id.require_expire_date" style="color: red;">*</span>
+                                <div class="input-group date">
+                                    <input type="date" t-if="document.sudo().type_id.require_expire_date"
+                                           name="expiry_date" required="required" class="form-control date_to"
+                                           t-att-value="document.expiry_date"/>
+                                    <input type="date" t-if="not document.sudo().type_id.require_expire_date"
+                                           name="expiry_date" class="form-control date_to"
+                                           t-att-value="document.expiry_date"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="Place">Place of Issue</label>
+                                <span t-if="document.sudo().type_id.require_expire_date" style="color: red;">*</span>
+                                <input t-if="document.sudo().type_id.require_expire_date" type="text" name="issue_place"
+                                       t-att-value="document.issue_place" required="required" class="form-control"
+                                       id="Place" placeholder="Enter Place of Issue"/>
+                                <input t-if="not document.sudo().type_id.require_expire_date" type="text"
+                                       name="issue_place" t-att-value="document.issue_place" class="form-control"
+                                       id="Place" placeholder="Enter Place of Issue"/>
+                            </div>
+                            <div class="form-group row">
+                                <label for="attachment">Upload Attachment</label>
+                                <input t-if="not document.sudo().type_id.require_attachment" type="file"
+                                       class="form-control" name="attachment" multiple="multiple"></input>
+                                <input t-if="document.sudo().type_id.require_attachment" required="required" type="file"
+                                       class="form-control" name="attachment" multiple="multiple"></input>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <input type="button" value="Back" class="btn btn-default" onclick="history.go(-1)"/>
+                        </div>
+                    </form>
+                </div>
+            </t>
+        </template>
+        <!-- Documents Template -->
+        <template id="my_documents" name="My Portal Documents">
+            <t t-call="portal.portal_layout">
+                <br/>
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="text-muted">
+                                <i class="fas fa-calendar-alt"></i>My Documents
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <t t-call="portal.portal_table">
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Issue Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Place of Issue</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="documents" t-as="document">
+                                    <tr>
+                                        <td>
+                                            <span t-esc="document.type_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="document.issue_date"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="document.expiry_date"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="document.issue_place"/>
+                                        </td>
+                                        <td>
+                                            <span t-att-class="'badge badge-success' if document.state=='confirm' else '' 'badge badge-primary' if document.state=='expiry' else '' 'badge badge-danger' if document.state=='renew' else '' 'badge badge-warning' if document.state=='refuse' else '' 'badge badge-light' if document.state=='draft' else '' 'badge badge-info' if document.state=='issue' else ''"
+                                                  t-field="document.state"/>
+                                        </td>
+                                        <td class=" py-0 align-middle">
+                                            <div class="btn-group btn-group-sm">
+                                                <a t-attf-href="/my/document/view/#{document.id}"
+                                                   class="btn btn-primary">
+                                                    <i class="fas fa-eye"></i>View
+                                                </a>
+                                                <a t-if="document.type_id.can_upload_from_portal"
+                                                   t-attf-href="/my/document/#{document.id}" class="btn btn-info">
+                                                    <i class="fas fa-file-upload"></i>Upload Docs
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
+        <template id="my_profile_edit" name="Edit Portal Profile">
+            <t t-call="portal.portal_layout">
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-edit"></i>Edit Profile
+                                </h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /.card-header -->
+                            <form t-att-action="'/my/profile/edit/%s' % (emp.id)" method="post"
+                                  enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="card-body">
+                                    <ul class="nav nav-tabs" id="custom-content-below-tab" role="tablist">
+                                        <li class="nav-item" t-if="'work_info' in accessibles">
+                                            <a class="nav-link" id="custom-content-below-home-tab" data-toggle="pill"
+                                               href="#custom-content-below-home" role="tab"
+                                               aria-controls="custom-content-below-home" aria-selected="true">Work
+                                                Information
+                                            </a>
+                                        </li>
+                                        <li class="nav-item" t-if="'qualify' in accessibles">
+                                            <a class="nav-link" id="custom-content-below-qualify_description-tab"
+                                               data-toggle="pill"
+                                               href="#custom-content-below-qualify_description" role="tab"
+                                               aria-controls="custom-content-below-qualify_description"
+                                               aria-selected="true">Qualification
+                                            </a>
+                                        </li>
+                                        <li class="nav-item" t-if="'private_info' in accessibles">
+                                            <a class="nav-link" id="custom-content-below-profile-tab" data-toggle="pill"
+                                               href="#custom-content-below-profile" role="tab"
+                                               aria-controls="custom-content-below-profile" aria-selected="false">
+                                                Private Information
+                                            </a>
+                                        </li>
+                                        <li class="nav-item" t-if="'info_in_arabic' in accessibles">
+                                            <a class="nav-link" id="custom-content-below-messages-tab"
+                                               data-toggle="pill" href="#custom-content-below-messages" role="tab"
+                                               aria-controls="custom-content-below-messages" aria-selected="false">
+                                                Information in AR
+                                            </a>
+                                        </li>
+                                        <li class="nav-item" t-if="'medical_insurance' in accessibles">
+                                            <a class="nav-link" id="custom-content-below-settings-tab"
+                                               data-toggle="pill" href="#custom-content-below-settings" role="tab"
+                                               aria-controls="custom-content-below-settings" aria-selected="false">
+                                                Medical Insurance
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="custom-content-below-tabContent">
+                                        <div t-if="'work_info' in accessibles" style="display: contents !important" class="tab-pane fade show"
+                                             id="custom-content-below-home" role="tabpanel"
+                                             aria-labelledby="custom-content-below-home-tab">
+                                            <div class="row invoice-info">
+                                                <div class="col-md-12 invoice-col">
+                                                    <div class="callout callout-info">
+                                                        <h5 style="margin: 0;">HR Basics</h5>
+                                                    </div>
+                                                    <!--                                                    <div class="form-group">-->
+                                                    <!--                                                        <label for="employee_room">Room :</label>-->
+                                                    <!--                                                        <input type="text" name="employee_room"-->
+                                                    <!--                                                               t-att-value="emp.employee_room" class="form-control"/>-->
+                                                    <!--                                                    </div>-->
+                                                    <div class="form-group">
+                                                        <label>Room :</label>
+                                                        <select class="form-control" name="employee_room">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select room
+                                                            </option>
+                                                            <t t-foreach="request.env['hr.employee.room'].sudo().search([])"
+                                                               t-as="room">
+                                                                <t t-if="room.id == emp.employee_room.id">
+                                                                    <option selected="selected" t-att-value="room.id">
+                                                                        <t t-esc="room.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="room.id">
+                                                                        <t t-esc="room.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="teaching_certificate">Teaching Certificate :</label>
+                                                        <input type="text" name="teaching_certificate"
+                                                               t-att-value="emp.teaching_certificate"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <br/>
+                                                    <div style="padding: 4px; margin-top: 0.5rem;"
+                                                         class="callout callout-info">
+                                                        <h5 style="margin: 0;">Transport</h5>
+                                                    </div>
+                                                    <!--                                                    <div class="form-group">-->
+                                                    <!--                                                        <label for="school_bus">School Bus :</label>-->
+                                                    <!--                                                        <input type="text" name="school_bus"-->
+                                                    <!--                                                               t-att-value="emp.school_bus" class="form-control"/>-->
+                                                    <!--                                                    </div>-->
+                                                    <div class="form-group">
+                                                        <label>School Bus :</label>
+                                                        <select class="form-control" name="school_bus">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select School Bus :
+                                                            </option>
+                                                            <t t-foreach="request.env['school.bus'].sudo().search([])"
+                                                               t-as="bus">
+                                                                <t t-if="bus.id == emp.school_bus.id">
+                                                                    <option selected="selected" t-att-value="bus.id">
+                                                                        <t t-esc="bus.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="bus.id">
+                                                                        <t t-esc="bus.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <!--                                                    <div class="form-group">-->
+                                                    <!--                                                        <label for="school_car">School Car :</label>-->
+                                                    <!--                                                        <input type="text" name="school_car"-->
+                                                    <!--                                                               t-att-value="emp.school_car" class="form-control"/>-->
+                                                    <!--                                                    </div>-->
+                                                    <div class="form-group">
+                                                        <label>School Car :</label>
+                                                        <select class="form-control" name="school_car">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select School Car :
+                                                            </option>
+                                                            <t t-foreach="request.env['school.car'].sudo().search([])"
+                                                               t-as="car">
+                                                                <t t-if="car.id == emp.school_car.id">
+                                                                    <option selected="selected" t-att-value="car.id">
+                                                                        <t t-esc="car.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="car.id">
+                                                                        <t t-esc="car.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div style="padding: 4px; margin-top: 0.5rem;"
+                                                         class="callout callout-info">
+                                                        <h5 style="margin: 0;">Work Permit</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="visa_no">Visa No :</label>
+                                                        <input type="text" name="visa_no" t-att-value="emp.visa_no"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="permit_no">Work Permit No :</label>
+                                                        <input type="text" name="permit_no" t-att-value="emp.permit_no"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="visa_expire">Visa Expire Date :</label>
+                                                        <input type="date" name="visa_expire"
+                                                               t-att-value="emp.visa_expire" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Visa Class :</label>
+                                                        <select class="form-control" name="visa_class_id">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Visa Class
+                                                            </option>
+                                                            <t t-foreach="request.env['hr.employee.visa.class'].sudo().search([])"
+                                                               t-as="visa">
+                                                                <t t-if="visa.id == emp.visa_class_id.id">
+                                                                    <option selected="selected" t-att-value="visa.id">
+                                                                        <t t-esc="visa.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="visa.id">
+                                                                        <t t-esc="visa.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Visa Subclass :</label>
+                                                        <select class="form-control" name="visa_subclass_id">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Visa Subclass
+                                                            </option>
+                                                            <t t-foreach="request.env['hr.employee.visa.subclass'].sudo().search([])"
+                                                               t-as="visa">
+                                                                <t t-if="visa.id == emp.visa_subclass_id.id">
+                                                                    <option selected="selected" t-att-value="visa.id">
+                                                                        <t t-esc="visa.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="visa.id">
+                                                                        <t t-esc="visa.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="visa_issue_date">Visa Issue Date :</label>
+                                                        <input type="date" name="visa_issue_date"
+                                                               t-att-value="emp.visa_issue_date" class="form-control"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div t-if="'qualify' in accessibles" style="display: contents !important" class="tab-pane fade show"
+                                             id="custom-content-below-qualify_description" role="tabpanel"
+                                             aria-labelledby="custom-content-below-qualify_description-tab">
+                                            <div class="row invoice-info">
+                                                <div class="col-md-12 invoice-col">
+
+                                                    <div style="padding: 4px;" class="callout callout-info">
+                                                        <h5 style="margin: 0;">Qualifications</h5>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Qualification Level :</label>
+                                                        <select class="form-control" name="certificate">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Qualification Level
+                                                            </option>
+                                                            <t t-if="emp.certificate == 'bachelor'">
+                                                                <option value="bachelor" selected="selected">Bachelor
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="bachelor">Bachelor</option>
+                                                            </t>
+                                                            <t t-if="emp.certificate == 'master'">
+                                                                <option value="master" selected="selected">Master
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="master">Master</option>
+                                                            </t>
+
+                                                            <t t-if="emp.certificate == 'phd'">
+                                                                <option value="master" selected="selected">PHD
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="master">PHD</option>
+                                                            </t>
+                                                            <t t-if="emp.certificate == 'other'">
+                                                                <option value="other" selected="selected">Other</option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="other">Other</option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="study_field">Qualification Description :</label>
+                                                        <input type="text" name="study_field"
+                                                               t-att-value="emp.study_field" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="study_school">University :</label>
+                                                        <input type="text" name="study_school"
+                                                               t-att-value="emp.study_school" class="form-control"/>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="row invoice-info">
+                                                <div class="col-md-12 invoice-col">
+
+                                                    <div style="padding: 4px;" class="callout callout-info">
+                                                        <h5 style="margin: 0;">Qualifications Level 2</h5>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Qualification Level 2 :</label>
+                                                        <select class="form-control" name="certificate_2">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Qualification Level
+                                                            </option>
+                                                            <t t-if="emp.certificate_2 == 'bachelor'">
+                                                                <option value="bachelor" selected="selected">Bachelor
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="bachelor">Bachelor</option>
+                                                            </t>
+                                                            <t t-if="emp.certificate_2 == 'master'">
+                                                                <option value="master" selected="selected">Master
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="master">Master</option>
+                                                            </t>
+
+                                                            <t t-if="emp.certificate_2 == 'phd'">
+                                                                <option value="master" selected="selected">PHD
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="master">PHD</option>
+                                                            </t>
+                                                            <t t-if="emp.certificate_2 == 'other'">
+                                                                <option value="other" selected="selected">Other</option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="other">Other</option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="study_field_2">Qualification Description :</label>
+                                                        <input type="text" name="study_field_2"
+                                                               t-att-value="emp.study_field_2" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="study_school_2">University :</label>
+                                                        <input type="text" name="study_school_2"
+                                                               t-att-value="emp.study_school_2" class="form-control"/>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="row invoice-info">
+                                                <div class="col-md-12 invoice-col">
+
+                                                    <div style="padding: 4px;" class="callout callout-info">
+                                                        <h5 style="margin: 0;">Qualifications Level 3</h5>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Qualification Level 3 :</label>
+                                                        <select class="form-control" name="certificate_3">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Qualification Level
+                                                            </option>
+                                                            <t t-if="emp.certificate_3 == 'bachelor'">
+                                                                <option value="bachelor" selected="selected">Bachelor
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="bachelor">Bachelor</option>
+                                                            </t>
+                                                            <t t-if="emp.certificate_3 == 'master'">
+                                                                <option value="master" selected="selected">Master
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="master">Master</option>
+                                                            </t>
+
+                                                            <t t-if="emp.certificate_3 == 'phd'">
+                                                                <option value="master" selected="selected">PHD
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="master">PHD</option>
+                                                            </t>
+                                                            <t t-if="emp.certificate_3 == 'other'">
+                                                                <option value="other" selected="selected">Other</option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="other">Other</option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="study_field_3">Qualification Description :</label>
+                                                        <input type="text" name="study_field_3"
+                                                               t-att-value="emp.study_field_3" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="study_school_3">University :</label>
+                                                        <input type="text" name="study_school_3"
+                                                               t-att-value="emp.study_school_3" class="form-control"/>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div t-if="'private_info' in accessibles" style="display: contents !important" class="tab-pane fade"
+                                             id="custom-content-below-profile" role="tabpanel"
+                                             aria-labelledby="custom-content-below-profile-tab">
+                                            <div class="row invoice-info">
+                                                <div class="col-md-6 invoice-col">
+                                                    <div class="callout callout-info">
+                                                        <h5 style="margin: 0;">Demographics</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Gender :</label>
+                                                        <select class="form-control" name="gender">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Gender
+                                                            </option>
+                                                            <t t-if="emp.gender == 'male'">
+                                                                <option value="male" selected="selected">Male</option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="male">Male</option>
+                                                            </t>
+                                                            <t t-if="emp.gender == 'female'">
+                                                                <option value="female" selected="selected">Female
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="female">Female</option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="birthday">Date of Birth :</label>
+                                                        <input type="date" name="birthday" t-att-value="emp.birthday"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Country of Birth :</label>
+                                                        <select class="form-control" name="country_of_birth">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Country of Birth
+                                                            </option>
+                                                            <t t-foreach="request.env['res.country'].sudo().search([])"
+                                                               t-as="country">
+                                                                <t t-if="country.id == emp.country_of_birth.id">
+                                                                    <option selected="selected"
+                                                                            t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Nationality1 (Country) :</label>
+                                                        <select class="form-control" name="country_id">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Country of Birth
+                                                            </option>
+                                                            <t t-foreach="request.env['res.country'].sudo().search([])"
+                                                               t-as="country">
+                                                                <t t-if="country.id == emp.country_id.id">
+                                                                    <option selected="selected"
+                                                                            t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Nationality2 (Country) :</label>
+                                                        <select class="form-control" name="country2_id">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Country of Birth
+                                                            </option>
+                                                            <t t-foreach="request.env['res.country'].sudo().search([])"
+                                                               t-as="country">
+                                                                <t t-if="country.id == emp.country2_id.id">
+                                                                    <option selected="selected"
+                                                                            t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div style="margin-top: 0.5rem;" class="callout callout-info">
+                                                        <h5 style="margin: 0;">Marital Status</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Marital Status :</label>
+                                                        <select class="form-control" name="marital">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Marital Status
+                                                            </option>
+                                                            <t t-if="emp.marital == 'single'">
+                                                                <option value="single" selected="selected">Single
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="single">Single</option>
+                                                            </t>
+                                                            <t t-if="emp.marital == 'married'">
+                                                                <option value="married" selected="selected">Married
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="married">Married</option>
+                                                            </t>
+                                                            <t t-if="emp.marital == 'cohabitant'">
+                                                                <option value="cohabitant" selected="selected">Legal
+                                                                    Cohabitant
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="cohabitant">Legal Cohabitant</option>
+                                                            </t>
+                                                            <t t-if="emp.marital == 'widower'">
+                                                                <option value="widower" selected="selected">Widower
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="widower">Widower</option>
+                                                            </t>
+                                                            <t t-if="emp.marital == 'divorced'">
+                                                                <option value="divorced" selected="selected">Divorced
+                                                                </option>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <option value="divorced">Divorced</option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="spouse_complete_name">Spouse Complete Name :</label>
+                                                        <input type="text" name="spouse_complete_name"
+                                                               t-att-value="emp.spouse_complete_name"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="spouse_phone">Spouse Phone :</label>
+                                                        <input type="text" name="spouse_phone"
+                                                               t-att-value="emp.spouse_phone" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="spouse_birthdate">Spouse Birth Date :</label>
+                                                        <input type="date" name="spouse_birthdate"
+                                                               t-att-value="emp.spouse_birthdate" class="form-control"/>
+                                                    </div>
+                                                    <div style="padding: 4px; margin-top: 0.5rem;"
+                                                         class="callout callout-info">
+                                                        <h5 style="margin: 0;">Emergency Contacts</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_contact">Emergency Contact :</label>
+                                                        <input type="text" name="emergency_contact"
+                                                               t-att-value="emp.emergency_contact"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_phone">Emergency Phone :</label>
+                                                        <input type="text" name="emergency_phone"
+                                                               t-att-value="emp.emergency_phone" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_email">Emergency Email :</label>
+                                                        <input type="text" name="emergency_email"
+                                                               t-att-value="emp.emergency_email" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_relation">Emergency Relation :</label>
+                                                        <input type="text" name="emergency_relation"
+                                                               t-att-value="emp.emergency_relation"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_address">Emergency Address :</label>
+                                                        <input type="text" name="emergency_address"
+                                                               t-att-value="emp.emergency_address"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_contact2">Emergency Contact2 :</label>
+                                                        <input type="text" name="emergency_contact2"
+                                                               t-att-value="emp.emergency_contact2"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_phone2">Emergency Phone2 :</label>
+                                                        <input type="text" name="emergency_phone2"
+                                                               t-att-value="emp.emergency_phone2" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_email2">Emergency Email2 :</label>
+                                                        <input type="text" name="emergency_email2"
+                                                               t-att-value="emp.emergency_email2" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_relation2">Emergency Relation2 :</label>
+                                                        <input type="text" name="emergency_relation2"
+                                                               t-att-value="emp.emergency_relation2"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="emergency_address2">Emergency Address2 :</label>
+                                                        <input type="text" name="emergency_address2"
+                                                               t-att-value="emp.emergency_address2"
+                                                               class="form-control"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 invoice-col">
+                                                    <div class="callout callout-info">
+                                                        <h5 style="margin: 0;">Contacts</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="address_home">Address :</label>
+                                                        <input type="text" name="address_home"
+                                                               t-att-value="emp.address_home" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="private_email">Private Email :</label>
+                                                        <input type="text" name="private_email"
+                                                               t-att-value="emp.private_email" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="phone">Private Phone :</label>
+                                                        <input type="text" name="phone" t-att-value="emp.phone"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="address_postal">Postal Address :</label>
+                                                        <input type="text" name="address_postal"
+                                                               t-att-value="emp.address_postal" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Major Airport :</label>
+                                                        <select class="form-control" name="major_airport_id">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Major Airport
+                                                            </option>
+                                                            <t t-foreach="request.env['hr.employee.airport'].sudo().search([])"
+                                                               t-as="country">
+                                                                <t t-if="country.id == emp.major_airport_id.id">
+                                                                    <option selected="selected"
+                                                                            t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                    <div style="padding: 4px; margin-top: 0.5rem;"
+                                                         class="callout callout-info">
+                                                        <h5 style="margin: 0;">Dependant</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="children">Number of Children :</label>
+                                                        <input type="text" name="children" t-att-value="emp.children"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="children_enrolled">Number of Kids Enrolled in AIS
+                                                            :
+                                                        </label>
+                                                        <input type="text" name="children_enrolled"
+                                                               t-att-value="emp.children_enrolled"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div style="padding: 4px; margin-top: 0.5rem;"
+                                                         class="callout callout-info">
+                                                        <h5 style="margin: 0;">HR Basics</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="identification_id">Identification No :</label>
+                                                        <input type="text" name="identification_id"
+                                                               t-att-value="emp.identification_id"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="passport_id">Passport No :</label>
+                                                        <input type="text" name="passport_id"
+                                                               t-att-value="emp.passport_id" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="passport_issue_date">Passport Issue Date :</label>
+                                                        <input type="date" name="passport_issue_date"
+                                                               t-att-value="emp.passport_issue_date"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="name_on_passport">Name On Passport :</label>
+                                                        <input type="text" name="name_on_passport"
+                                                               t-att-value="emp.name_on_passport" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Passport (Country) :</label>
+                                                        <select class="form-control" name="passport_country_id">
+                                                            <option value="" selected="selected" disabled="disabled">
+                                                                Select Passport (Country)
+                                                            </option>
+                                                            <t t-foreach="request.env['res.country'].sudo().search([])"
+                                                               t-as="country">
+                                                                <t t-if="country.id == emp.passport_country_id.id">
+                                                                    <option selected="selected"
+                                                                            t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <option t-att-value="country.id">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div t-if="'info_in_arabic' in accessibles" style="display: contents !important" class="tab-pane fade"
+                                             id="custom-content-below-messages" role="tabpanel"
+                                             aria-labelledby="custom-content-below-messages-tab">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="callout callout-info">
+                                                        <h5 style="margin: 0;">Information in Arabic</h5>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="arabic_full_name">Employee Arabic FullName :</label>
+                                                        <input type="text" name="arabic_full_name"
+                                                               t-att-value="emp.arabic_full_name" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="arabic_nationality">Employee Arabic Nationality :
+                                                        </label>
+                                                        <input type="text" name="arabic_nationality"
+                                                               t-att-value="emp.arabic_nationality"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="arabic_job">Employee Arabic Job Position :</label>
+                                                        <input type="text" name="arabic_job"
+                                                               t-att-value="emp.arabic_job" class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="arabic_place_of_birth">Employee Arabic Place Of
+                                                            Birth :
+                                                        </label>
+                                                        <input type="text" name="arabic_place_of_birth"
+                                                               t-att-value="emp.arabic_place_of_birth"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="arabic_qualifications">Employee Arabic Academic
+                                                            Qualifications :
+                                                        </label>
+                                                        <input type="text" name="arabic_qualifications"
+                                                               t-att-value="emp.arabic_qualifications"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="arabic_home_address">Employee Arabic Home Address
+                                                            Line1 :
+                                                        </label>
+                                                        <input type="text" name="arabic_home_address"
+                                                               t-att-value="emp.arabic_home_address"
+                                                               class="form-control"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="arabic_home_address2">Employee Arabic Home Address
+                                                            Line2 :
+                                                        </label>
+                                                        <input type="text" name="arabic_home_address2"
+                                                               t-att-value="emp.arabic_home_address2"
+                                                               class="form-control"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div t-if="'medical_insurance' in accessibles" style="display: contents !important" class="tab-pane fade"
+                                             id="custom-content-below-settings" role="tabpanel"
+                                             aria-labelledby="custom-content-below-settings-tab">
+                                            <div class="callout callout-info">
+                                                <h5 style="margin: 0;">Medical Insurance</h5>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Insurance Company :</label>
+                                                <select class="form-control" name="insurance_company_id">
+                                                    <option value="" selected="selected" disabled="disabled">Select
+                                                        Insurance Company
+                                                    </option>
+                                                    <t t-foreach="request.env['insurance.company'].sudo().search([])"
+                                                       t-as="insurance">
+                                                        <t t-if="insurance.id == emp.insurance_company_id.id">
+                                                            <option selected="selected" t-att-value="insurance.id">
+                                                                <t t-esc="insurance.name"/>
+                                                            </option>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <option t-att-value="insurance.id">
+                                                                <t t-esc="insurance.name"/>
+                                                            </option>
+                                                        </t>
+                                                    </t>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="insurance_id">Insurance ID :</label>
+                                                <input type="text" name="insurance_id" t-att-value="emp.insurance_id"
+                                                       class="form-control"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="insurance_date_from">From :</label>
+                                                <input type="date" name="insurance_date_from"
+                                                       t-att-value="emp.insurance_date_from" class="form-control"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="insurance_date_to">To :</label>
+                                                <input type="date" name="insurance_date_to"
+                                                       t-att-value="emp.insurance_date_to" class="form-control"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                    <input type="button" value="Back" class="btn btn-default" onclick="history.go(-1)"/>
+                                </div>
+                            </form>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </t>
+        </template>
+        <template id="my_profile" name="My Portal Profile">
+            <t t-call="portal.portal_layout">
+                <style>.profile-usermenu { margin-top: 30px; } .profile-usermenu ul li { border-bottom: 1px solid
+                    #f0f4f7; } .profile-usermenu ul li:last-child { border-bottom: none; } .profile-usermenu ul li a {
+                    color: #93a3b5; font-size: 17px; font-weight: 500; } .profile-usermenu ul li a i { margin-right:
+                    8px; font-size: 14px; } .profile-usermenu ul li a:hover { background-color: #fafcfd; color: #5b9bd1;
+                    } .profile-usermenu ul li.active { border-bottom: none; } .profile-usermenu ul li.active a { color:
+                    #5b9bd1; background-color: #f6f9fb; border-left: 2px solid #5b9bd1; margin-left: -2px; }.nav-pills
+                    .nav-link:not(.active):hover { color: #ffffff; }.nav-pills .nav-link.active, .nav-pills .show&gt;.nav-link
+                    { color: #fff; background-color: #ffffff; }
+                </style>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Profile Image -->
+                        <div class="card card-info card-outline">
+                            <div class="card-body box-profile">
+                                <div class="text-center">
+                                    <img class="profile-user-img img-fluid img-circle"
+                                         t-att-src="'/web/image?model=hr.employee&amp;id=%s&amp;field=image_128' % user_id.employee_id.id"/>
+                                </div>
+                                <h3 class="profile-username text-center">
+                                    <span t-if="user_id.employee_id"
+                                          t-esc="user_id.employee_id.name[:23] + '...' if user_id.name and len(user_id.employee_id.name) &gt; 25 else user_id.employee_id.name"/>
+                                </h3>
+                                <p class="text-muted text-center">
+                                    <span t-esc="user_id.email"/>
+                                </p>
+                                <div class="text-center">
+                                    <a href="/my/profile/edit" class="btn btn-info">
+                                        <i class="fas fa-user-edit"></i>
+                                        <b>Edit Profile</b>
+                                    </a>
+                                </div>
+                                <!-- SIDEBAR MENU -->
+                                <div class="profile-usermenu">
+                                    <ul class="nav list-group list-group-unbordered mb-3">
+                                        <li class=" list-group-item">
+                                            <a href="#">
+                                                <i class="fa fa-user"></i>Overview
+                                            </a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <a href="/my/documents">
+                                                <i class="fas fa-file-upload"></i>Documents
+                                            </a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <a href="/my/onboard">
+                                                <i class="fas fa-cube"></i>Onboard Plans
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!-- END MENU -->
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                    <style>
+                        .tabs {
+                        position: relative;
+                        margin: 3rem 0;
+                        background: #17a2b8;
+                        height: 40rem;
+                        }
+                        .tabs::before,
+                        .tabs::after {
+                        content: "";
+                        display: table;
+                        }
+                        .tabs::after {
+                        clear: both;
+                        }
+                        .tab {
+                        float: left;
+                        }
+                        .tab-switch {
+                        display: none;
+                        }
+                        .tab-label {
+                        position: relative;
+                        display: block;
+                        line-height: 2.75em;
+                        height: 3em;
+                        padding: 0 1.618em;
+                        background: #17a2b8;
+                        border-right: 0.125rem solid #16a085;
+                        color: #fff;
+                        cursor: pointer;
+                        top: 0;
+                        transition: all 0.25s;
+                        }
+                        .tab-label:hover {
+                        top: -0.25rem;
+                        transition: top 0.25s;
+                        }
+                        .tab-content {
+                        height: 100%;
+                        width: 100%;
+                        position: absolute;
+                        z-index: 1;
+                        top: 2.75em;
+                        left: 0;
+                        padding: 1.618rem;
+                        background: #fff;
+                        color: #2c3e50;
+                        border-bottom: 0.25rem solid #bdc3c7;
+                        opacity: 0;
+                        transition: all 0.35s;
+                        }
+                        .tab-switch:checked + .tab-label {
+                        background: #fff;
+                        color: #2c3e50;
+                        border-bottom: 0;
+                        border-right: 0.125rem solid #fff;
+                        transition: all 0.35s;
+                        z-index: 1;
+                        top: -0.0625rem;
+                        }
+                        .tab-switch:checked + label + .tab-content {
+                        z-index: 2;
+                        opacity: 1;
+                        transition: all 0.35s;
+                        }
+                    </style>
+                    <div class="col-md-12">
+<!--                        <div class="card card-info card-tabs">-->
+<!--                            <div class="card-header p-2">-->
+<!--                                <ul class="nav nav-pills card-title">-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link active" href="#activity" data-toggle="tab">General</a>-->
+<!--                                    </li>-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link" href="#timeline" data-toggle="tab">Work Information</a>-->
+<!--                                    </li>-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link" href="#qualifiy_description" data-toggle="tab">-->
+<!--                                            Qualification-->
+<!--                                        </a>-->
+<!--                                    </li>-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link" href="#settings" data-toggle="tab">Private Information</a>-->
+<!--                                    </li>-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link" href="#ar" data-toggle="tab">Information in AR</a>-->
+<!--                                    </li>-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link" href="#insurance" data-toggle="tab">Medical Insurance</a>-->
+<!--                                    </li>-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link" href="#history" data-toggle="tab">Job Position History</a>-->
+<!--                                    </li>-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <a class="nav-link" href="#family" data-toggle="tab">Family</a>-->
+<!--                                    </li>-->
+<!--                                </ul>-->
+<!--                                <div class="card-tools">-->
+<!--                                    <button type="button" class="btn btn-tool" data-card-widget="maximize">-->
+<!--                                        <i class="fas fa-expand"></i>-->
+<!--                                    </button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="tab-content">-->
+<!--                                    <div class="active tab-pane" id="activity">-->
+<!--                                        &lt;!&ndash; Post &ndash;&gt;-->
+<!--                                        <div class="row invoice-info">-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Demographics</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>First Name :</b>-->
+<!--                                                <span t-esc="emp.first_name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Middle Name :</b>-->
+<!--                                                <span t-esc="emp.middle_name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Last Name :</b>-->
+<!--                                                <span t-esc="emp.last_name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Legal Name :</b>-->
+<!--                                                <span t-esc="emp.legal_name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Title :</b>-->
+<!--                                                <span t-esc="emp.title.name"/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">General</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Manager :</b>-->
+<!--                                                <span t-esc="emp.parent_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Company :</b>-->
+<!--                                                <span t-esc="emp.company_id.name"/>-->
+<!--                                            </div>-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Contacts</h5>-->
+<!--                                                </div>-->
+
+<!--                                                <b>Work Email :</b>-->
+<!--                                                <span t-esc="emp.work_email"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Work Phone :</b>-->
+<!--                                                <span t-esc="emp.work_phone"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Work Mobile :</b>-->
+<!--                                                <span t-esc="emp.mobile_phone"/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Sys</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>PIN :</b>-->
+<!--                                                <span t-esc="emp.pin"/>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="tab-pane" id="timeline">-->
+<!--                                        <div class="row invoice-info">-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">HR Basics</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Department :</b>-->
+<!--                                                <span t-esc="emp.department_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Job Position :</b>-->
+<!--                                                <span t-esc="emp.job_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Job Category :</b>-->
+<!--                                                <span t-esc="emp.job_category_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Default Campus :</b>-->
+<!--                                                <span t-esc="emp.campus_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Teaching In :</b>-->
+<!--                                                <t t-foreach="emp.teaching_ids" t-as="teaching">-->
+<!--                                                    <span style=" background: #17a2b885; padding: 0px 6px 1px 7px; border-radius: 15px;"-->
+<!--                                                          t-esc="teaching.name"/>-->
+<!--                                                </t>-->
+<!--                                                <br/>-->
+<!--                                                <b>Start Date :</b>-->
+<!--                                                <span t-esc="emp.start_date"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Current Position Start Date :</b>-->
+<!--                                                <span t-esc="emp.position_start_date"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Room :</b>-->
+<!--                                                <span t-esc="emp.employee_room"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Teaching Certificate :</b>-->
+<!--                                                <span t-esc="emp.teaching_certificate"/>-->
+<!--                                                <br/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Transport</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>School Bus :</b>-->
+<!--                                                <span t-esc="emp.school_bus"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>School Car :</b>-->
+<!--                                                <span t-esc="emp.school_car"/>-->
+<!--                                                <br/>-->
+
+<!--                                            </div>-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Location</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Work Address :</b>-->
+<!--                                                <span t-esc="emp.address_id.name"/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Responsibles</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Coach :</b>-->
+<!--                                                <span t-esc="emp.coach_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Time Off :</b>-->
+<!--                                                <span t-esc="emp.leave_manager_id.name"/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Schedule</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Working Hours :</b>-->
+<!--                                                <span t-esc="emp.resource_calendar_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Timezone :</b>-->
+<!--                                                <span t-esc="emp.tz"/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Work Permit</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Visa No :</b>-->
+<!--                                                <span t-esc="emp.visa_no"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Work Permit No :</b>-->
+<!--                                                <span t-esc="emp.permit_no"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Visa Expire Date :</b>-->
+<!--                                                <span t-esc="emp.visa_expire"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Visa Class :</b>-->
+<!--                                                <span t-esc="emp.visa_class_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Visa Subclass :</b>-->
+<!--                                                <span t-esc="emp.visa_subclass_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Visa Issue Date :</b>-->
+<!--                                                <span t-esc="emp.visa_issue_date"/>-->
+<!--                                                <br/>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        &lt;!&ndash; /.post &ndash;&gt;-->
+<!--                                    </div>-->
+<!--                                    <div class="tab-pane" id="qualifiy_description">-->
+<!--                                        <div class="row invoice-info">-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Qualifications</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Qualification Level :</b>-->
+<!--                                                <span t-esc="emp.certificate"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Qualification Description :</b>-->
+<!--                                                <span t-esc="emp.study_field"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>University :</b>-->
+<!--                                                <span t-esc="emp.study_school"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Qualification Level 2:</b>-->
+<!--                                                <span t-esc="emp.certificate_2"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Qualification Description 2:</b>-->
+<!--                                                <span t-esc="emp.study_field_2"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>University 2:</b>-->
+<!--                                                <span t-esc="emp.study_school_2"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Qualification Level 3:</b>-->
+<!--                                                <span t-esc="emp.certificate_3"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Qualification Description 3:</b>-->
+<!--                                                <span t-esc="emp.study_field_3"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>University 3:</b>-->
+<!--                                                <span t-esc="emp.study_school_3"/>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        &lt;!&ndash; /.post &ndash;&gt;-->
+<!--                                    </div>-->
+<!--                                    <div class="tab-pane" id="settings">-->
+<!--                                        <div class="row invoice-info">-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Demographics</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Gender :</b>-->
+<!--                                                <span t-esc="emp.gender"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Date of Birth :</b>-->
+<!--                                                <span t-esc="emp.birthday"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Country of Birth :</b>-->
+<!--                                                <span t-esc="emp.country_of_birth.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Nationality1 (Country) :</b>-->
+<!--                                                <span t-esc="emp.country_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Nationality2 (Country) :</b>-->
+<!--                                                <span t-esc="emp.country2_id.name"/>-->
+
+<!--                                                <br/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Emergency Contacts</h5>-->
+<!--                                                </div>-->
+<!--                                                <h4>-->
+<!--                                                    Egypt Emergency contacts [Must be not working at AIS]-->
+<!--                                                </h4>-->
+<!--                                                <b>Name :</b>-->
+<!--                                                <span t-esc="emp.emergency_contact"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Phone :</b>-->
+<!--                                                <span t-esc="emp.emergency_phone"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Email :</b>-->
+<!--                                                <span t-esc="emp.emergency_email"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Relation :</b>-->
+<!--                                                <span t-esc="emp.emergency_relation"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Address :</b>-->
+<!--                                                <span t-esc="emp.emergency_address"/>-->
+<!--                                                <br/>-->
+<!--                                                <h4>-->
+<!--                                                    International Emergency contact-->
+
+<!--                                                </h4>-->
+<!--                                                <b>Name:</b>-->
+<!--                                                <span t-esc="emp.emergency_contact2"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Phone :</b>-->
+<!--                                                <span t-esc="emp.emergency_phone2"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Email :</b>-->
+<!--                                                <span t-esc="emp.emergency_email2"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Relation :</b>-->
+<!--                                                <span t-esc="emp.emergency_relation2"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Address :</b>-->
+<!--                                                <span t-esc="emp.emergency_address2"/>-->
+<!--                                                <br/>-->
+
+<!--                                            </div>-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Contacts</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Address :</b>-->
+<!--                                                <span t-esc="emp.address_home"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Private Email :</b>-->
+<!--                                                <span t-esc="emp.private_email"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Private Phone :</b>-->
+<!--                                                <span t-esc="emp.phone"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Postal Address :</b>-->
+<!--                                                <span t-esc="emp.address_postal"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Major Airport :</b>-->
+<!--                                                <span t-esc="emp.major_airport_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Dependant</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Number of Children :</b>-->
+<!--                                                <span t-esc="emp.children"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Number of Kids Enrolled in AIS :</b>-->
+<!--                                                <span t-esc="emp.children_enrolled"/>-->
+<!--                                                <br/>-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">HR Basics</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Egyptian National ID :</b>-->
+<!--                                                <span t-esc="emp.identification_id"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Passport No :</b>-->
+<!--                                                <span t-esc="emp.passport_id"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Passport Issue Date :</b>-->
+<!--                                                <span t-esc="emp.passport_issue_date"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Name On Passport :</b>-->
+<!--                                                <span t-esc="emp.name_on_passport"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Passport (Country) :</b>-->
+<!--                                                <span t-esc="emp.passport_country_id.name"/>-->
+<!--                                                <br/>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    &lt;!&ndash; /.tab-pane &ndash;&gt;-->
+<!--                                    <div class="tab-pane" id="ar">-->
+<!--                                        <div class="row invoice-info">-->
+<!--                                            <div class="col-md-12 invoice-col">-->
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Information in Arabic</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Employee Arabic FullName :</b>-->
+<!--                                                <span t-esc="emp.arabic_full_name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Employee Arabic Nationality :</b>-->
+<!--                                                <span t-esc="emp.arabic_nationality"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Employee Arabic Job Position :</b>-->
+<!--                                                <span t-esc="emp.arabic_job"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Employee Arabic Place Of Birth :</b>-->
+<!--                                                <span t-esc="emp.arabic_place_of_birth"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Employee Arabic Academic Qualifications :</b>-->
+<!--                                                <span t-esc="emp.arabic_qualifications"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Employee Arabic Home Address Line1 :</b>-->
+<!--                                                <span t-esc="emp.arabic_home_address"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Employee Arabic Home Address Line2 :</b>-->
+<!--                                                <span t-esc="emp.arabic_home_address2"/>-->
+<!--                                                <br/>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="tab-pane" id="insurance">-->
+<!--                                    </div>-->
+<!--                                    <div class="tab-pane" id="history">-->
+<!--                                        <div class="row invoice-info">-->
+<!--                                            <div class="col-md-12 invoice-col">-->
+<!--                                                <div style="padding: 4px;" class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Job History</h5>-->
+<!--                                                </div>-->
+<!--                                                <table t-if="job_history_ids" class="table">-->
+<!--                                                    <thead>-->
+<!--                                                        <tr>-->
+<!--                                                            <th>Job</th>-->
+<!--                                                            <th>Change Date</th>-->
+<!--                                                        </tr>-->
+<!--                                                    </thead>-->
+<!--                                                    <tbody>-->
+<!--                                                        <t t-foreach="job_history_ids" t-as="job_history">-->
+<!--                                                            <tr>-->
+<!--                                                                <td>-->
+<!--                                                                    <span t-esc="job_history.job_id.name"/>-->
+<!--                                                                </td>-->
+<!--                                                                <td>-->
+<!--                                                                    <span t-esc="job_history.change_date"/>-->
+<!--                                                                </td>-->
+<!--                                                            </tr>-->
+<!--                                                        </t>-->
+<!--                                                    </tbody>-->
+<!--                                                </table>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="tab-pane" id="family">-->
+<!--                                        <div class="row invoice-info">-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Marital Status</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Marital Status :</b>-->
+<!--                                                <span t-esc="emp.marital"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Spouse Complete Name :</b>-->
+<!--                                                <span t-esc="emp.spouse_complete_name"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Spouse Phone :</b>-->
+<!--                                                <span t-esc="emp.spouse_phone"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Spouse Birthdate :</b>-->
+<!--                                                <span t-esc="emp.spouse_birthdate"/>-->
+<!--                                            </div>-->
+<!--                                            <div class="col-md-6 invoice-col">-->
+<!--                                                <div style="padding: 4px; margin-top: 0.5rem;"-->
+<!--                                                     class="callout callout-info">-->
+<!--                                                    <h5 style="margin: 0;">Dependant</h5>-->
+<!--                                                </div>-->
+<!--                                                <b>Number of Children :</b>-->
+<!--                                                <span t-esc="emp.children"/>-->
+<!--                                                <br/>-->
+<!--                                                <b>Number of Kids Enrolled in AIS :</b>-->
+<!--                                                <span t-esc="emp.children_enrolled"/>-->
+
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                &lt;!&ndash; /.tab-content &ndash;&gt;-->
+<!--                            </div>-->
+<!--                            &lt;!&ndash; /.card-body &ndash;&gt;-->
+<!--                        </div>-->
+                        <div class="tabs">
+                            <div class="tab">
+                                <input type="radio" checked="1" name="css-tabs" id="activity" class="tab-switch"/>
+                                <label for="activity" class="tab-label">General</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Demographics</h5>
+                                            </div>
+                                            <b>First Name :</b>
+                                            <span t-esc="emp.first_name"/>
+                                            <br/>
+                                            <b>Middle Name :</b>
+                                            <span t-esc="emp.middle_name"/>
+                                            <br/>
+                                            <b>Last Name :</b>
+                                            <span t-esc="emp.last_name"/>
+                                            <br/>
+                                            <b>Legal Name :</b>
+                                            <span t-esc="emp.legal_name"/>
+                                            <br/>
+                                            <b>Title :</b>
+                                            <span t-esc="emp.title.name"/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">General</h5>
+                                            </div>
+                                            <b>Manager :</b>
+                                            <span t-esc="emp.parent_id.name"/>
+                                            <br/>
+                                            <b>Company :</b>
+                                            <span t-esc="emp.company_id.name"/>
+                                        </div>
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Contacts</h5>
+                                            </div>
+
+                                            <b>Work Email :</b>
+                                            <span t-esc="emp.work_email"/>
+                                            <br/>
+                                            <b>Work Phone :</b>
+                                            <span t-esc="emp.work_phone"/>
+                                            <br/>
+                                            <b>Work Mobile :</b>
+                                            <span t-esc="emp.mobile_phone"/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Sys</h5>
+                                            </div>
+                                            <b>PIN :</b>
+                                            <span t-esc="emp.pin"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab">
+                                <input type="radio" name="css-tabs" id="timeline" class="tab-switch"/>
+                                <label for="timeline" class="tab-label">Work Information</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">HR Basics</h5>
+                                            </div>
+                                            <b>Department :</b>
+                                            <span t-esc="emp.department_id.name"/>
+                                            <br/>
+                                            <b>Job Position :</b>
+                                            <span t-esc="emp.job_id.name"/>
+                                            <br/>
+                                            <b>Job Category :</b>
+                                            <span t-esc="emp.job_category_id.name"/>
+                                            <br/>
+                                            <b>Default Campus :</b>
+                                            <span t-esc="emp.campus_id.name"/>
+                                            <br/>
+                                            <b>Teaching In :</b>
+                                            <t t-foreach="emp.teaching_ids" t-as="teaching">
+                                                <span style=" background: #17a2b885; padding: 0px 6px 1px 7px; border-radius: 15px;"
+                                                      t-esc="teaching.name"/>
+                                            </t>
+                                            <br/>
+                                            <b>Start Date :</b>
+                                            <span t-esc="emp.start_date"/>
+                                            <br/>
+                                            <b>Current Position Start Date :</b>
+                                            <span t-esc="emp.position_start_date"/>
+                                            <br/>
+                                            <b>Room :</b>
+                                            <span t-esc="emp.employee_room"/>
+                                            <br/>
+                                            <b>Teaching Certificate :</b>
+                                            <span t-esc="emp.teaching_certificate"/>
+                                            <br/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Transport</h5>
+                                            </div>
+                                            <b>School Bus :</b>
+                                            <span t-esc="emp.school_bus"/>
+                                            <br/>
+                                            <b>School Car :</b>
+                                            <span t-esc="emp.school_car"/>
+                                            <br/>
+
+                                        </div>
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Location</h5>
+                                            </div>
+                                            <b>Work Address :</b>
+                                            <span t-esc="emp.address_id.name"/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Responsibles</h5>
+                                            </div>
+                                            <b>Coach :</b>
+                                            <span t-esc="emp.coach_id.name"/>
+                                            <br/>
+                                            <b>Time Off :</b>
+                                            <span t-esc="emp.leave_manager_id.name"/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Schedule</h5>
+                                            </div>
+                                            <b>Working Hours :</b>
+                                            <span t-esc="emp.resource_calendar_id.name"/>
+                                            <br/>
+                                            <b>Timezone :</b>
+                                            <span t-esc="emp.tz"/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Work Permit</h5>
+                                            </div>
+                                            <b>Visa No :</b>
+                                            <span t-esc="emp.visa_no"/>
+                                            <br/>
+                                            <b>Work Permit No :</b>
+                                            <span t-esc="emp.permit_no"/>
+                                            <br/>
+                                            <b>Visa Expire Date :</b>
+                                            <span t-esc="emp.visa_expire"/>
+                                            <br/>
+                                            <b>Visa Class :</b>
+                                            <span t-esc="emp.visa_class_id.name"/>
+                                            <br/>
+                                            <b>Visa Subclass :</b>
+                                            <span t-esc="emp.visa_subclass_id.name"/>
+                                            <br/>
+                                            <b>Visa Issue Date :</b>
+                                            <span t-esc="emp.visa_issue_date"/>
+                                            <br/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab">
+                                <input type="radio" name="css-tabs" id="qualifiy_description" class="tab-switch"/>
+                                <label for="qualifiy_description" class="tab-label">Qualification</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-6 invoice-col">
+
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Qualifications</h5>
+                                            </div>
+                                            <b>Qualification Level :</b>
+                                            <span t-esc="emp.certificate"/>
+                                            <br/>
+                                            <b>Qualification Description :</b>
+                                            <span t-esc="emp.study_field"/>
+                                            <br/>
+                                            <b>University :</b>
+                                            <span t-esc="emp.study_school"/>
+                                            <br/>
+                                            <b>Qualification Level 2:</b>
+                                            <span t-esc="emp.certificate_2"/>
+                                            <br/>
+                                            <b>Qualification Description 2:</b>
+                                            <span t-esc="emp.study_field_2"/>
+                                            <br/>
+                                            <b>University 2:</b>
+                                            <span t-esc="emp.study_school_2"/>
+                                            <br/>
+                                            <b>Qualification Level 3:</b>
+                                            <span t-esc="emp.certificate_3"/>
+                                            <br/>
+                                            <b>Qualification Description 3:</b>
+                                            <span t-esc="emp.study_field_3"/>
+                                            <br/>
+                                            <b>University 3:</b>
+                                            <span t-esc="emp.study_school_3"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab">
+                                <input type="radio" name="css-tabs" id="settings" class="tab-switch"/>
+                                <label for="settings" class="tab-label">Private Information</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Demographics</h5>
+                                            </div>
+                                            <b>Gender :</b>
+                                            <span t-esc="emp.gender"/>
+                                            <br/>
+                                            <b>Date of Birth :</b>
+                                            <span t-esc="emp.birthday"/>
+                                            <br/>
+                                            <b>Country of Birth :</b>
+                                            <span t-esc="emp.country_of_birth.name"/>
+                                            <br/>
+                                            <b>Nationality1 (Country) :</b>
+                                            <span t-esc="emp.country_id.name"/>
+                                            <br/>
+                                            <b>Nationality2 (Country) :</b>
+                                            <span t-esc="emp.country2_id.name"/>
+
+                                            <br/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Emergency Contacts</h5>
+                                            </div>
+                                            <h4>
+                                                Egypt Emergency contacts [Must be not working at AIS]
+                                            </h4>
+                                            <b>Name :</b>
+                                            <span t-esc="emp.emergency_contact"/>
+                                            <br/>
+                                            <b>Phone :</b>
+                                            <span t-esc="emp.emergency_phone"/>
+                                            <br/>
+                                            <b>Email :</b>
+                                            <span t-esc="emp.emergency_email"/>
+                                            <br/>
+                                            <b>Relation :</b>
+                                            <span t-esc="emp.emergency_relation"/>
+                                            <br/>
+                                            <b>Address :</b>
+                                            <span t-esc="emp.emergency_address"/>
+                                            <br/>
+                                            <h4>
+                                                International Emergency contact
+
+                                            </h4>
+                                            <b>Name:</b>
+                                            <span t-esc="emp.emergency_contact2"/>
+                                            <br/>
+                                            <b>Phone :</b>
+                                            <span t-esc="emp.emergency_phone2"/>
+                                            <br/>
+                                            <b>Email :</b>
+                                            <span t-esc="emp.emergency_email2"/>
+                                            <br/>
+                                            <b>Relation :</b>
+                                            <span t-esc="emp.emergency_relation2"/>
+                                            <br/>
+                                            <b>Address :</b>
+                                            <span t-esc="emp.emergency_address2"/>
+                                            <br/>
+
+                                        </div>
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Contacts</h5>
+                                            </div>
+                                            <b>Address :</b>
+                                            <span t-esc="emp.address_home"/>
+                                            <br/>
+                                            <b>Private Email :</b>
+                                            <span t-esc="emp.private_email"/>
+                                            <br/>
+                                            <b>Private Phone :</b>
+                                            <span t-esc="emp.phone"/>
+                                            <br/>
+                                            <b>Postal Address :</b>
+                                            <span t-esc="emp.address_postal"/>
+                                            <br/>
+                                            <b>Major Airport :</b>
+                                            <span t-esc="emp.major_airport_id.name"/>
+                                            <br/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Dependant</h5>
+                                            </div>
+                                            <b>Number of Children :</b>
+                                            <span t-esc="emp.children"/>
+                                            <br/>
+                                            <b>Number of Kids Enrolled in AIS :</b>
+                                            <span t-esc="emp.children_enrolled"/>
+                                            <br/>
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">HR Basics</h5>
+                                            </div>
+                                            <b>Egyptian National ID :</b>
+                                            <span t-esc="emp.identification_id"/>
+                                            <br/>
+                                            <b>Passport No :</b>
+                                            <span t-esc="emp.passport_id"/>
+                                            <br/>
+                                            <b>Passport Issue Date :</b>
+                                            <span t-esc="emp.passport_issue_date"/>
+                                            <br/>
+                                            <b>Name On Passport :</b>
+                                            <span t-esc="emp.name_on_passport"/>
+                                            <br/>
+                                            <b>Passport (Country) :</b>
+                                            <span t-esc="emp.passport_country_id.name"/>
+                                            <br/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab">
+                                <input type="radio" name="css-tabs" id="ar" class="tab-switch"/>
+                                <label for="ar" class="tab-label">Information in AR</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-12 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Information in Arabic</h5>
+                                            </div>
+                                            <b>Employee Arabic FullName :</b>
+                                            <span t-esc="emp.arabic_full_name"/>
+                                            <br/>
+                                            <b>Employee Arabic Nationality :</b>
+                                            <span t-esc="emp.arabic_nationality"/>
+                                            <br/>
+                                            <b>Employee Arabic Job Position :</b>
+                                            <span t-esc="emp.arabic_job"/>
+                                            <br/>
+                                            <b>Employee Arabic Place Of Birth :</b>
+                                            <span t-esc="emp.arabic_place_of_birth"/>
+                                            <br/>
+                                            <b>Employee Arabic Academic Qualifications :</b>
+                                            <span t-esc="emp.arabic_qualifications"/>
+                                            <br/>
+                                            <b>Employee Arabic Home Address Line1 :</b>
+                                            <span t-esc="emp.arabic_home_address"/>
+                                            <br/>
+                                            <b>Employee Arabic Home Address Line2 :</b>
+                                            <span t-esc="emp.arabic_home_address2"/>
+                                            <br/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab">
+                                <input type="radio" name="css-tabs" id="insurance" class="tab-switch"/>
+                                <label for="insurance" class="tab-label">Medical Insurance</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-12 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Medical Insurance</h5>
+                                            </div>
+                                            <b>Insurance Company :</b>
+                                            <span t-esc="emp.insurance_company_id.name"/>
+                                            <br/>
+                                            <b>Insurance ID :</b>
+                                            <span t-esc="emp.insurance_id"/>
+                                            <br/>
+                                            <b>From :</b>
+                                            <span t-esc="emp.insurance_date_from"/>
+                                            <br/>
+                                            <b>To :</b>
+                                            <span t-esc="emp.insurance_date_to"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab">
+                                <input type="radio" name="css-tabs" id="history" class="tab-switch"/>
+                                <label for="history" class="tab-label">Job Position History</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-12 invoice-col">
+                                            <div style="padding: 4px;" class="callout callout-info">
+                                                <h5 style="margin: 0;">Job History</h5>
+                                            </div>
+                                            <table t-if="job_history_ids" class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Job</th>
+                                                        <th>Change Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="job_history_ids" t-as="job_history">
+                                                        <tr>
+                                                            <td>
+                                                                <span t-esc="job_history.job_id.name"/>
+                                                            </td>
+                                                            <td>
+                                                                <span t-esc="job_history.change_date"/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab">
+                                <input type="radio" name="css-tabs" id="family" class="tab-switch"/>
+                                <label for="family" class="tab-label">Family</label>
+                                <div class="tab-content">
+                                    <div class="row invoice-info">
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Marital Status</h5>
+                                            </div>
+                                            <b>Marital Status :</b>
+                                            <span t-esc="emp.marital"/>
+                                            <br/>
+                                            <b>Spouse Complete Name :</b>
+                                            <span t-esc="emp.spouse_complete_name"/>
+                                            <br/>
+                                            <b>Spouse Phone :</b>
+                                            <span t-esc="emp.spouse_phone"/>
+                                            <br/>
+                                            <b>Spouse Birthdate :</b>
+                                            <span t-esc="emp.spouse_birthdate"/>
+                                        </div>
+                                        <div class="col-md-6 invoice-col">
+                                            <div style="padding: 4px; margin-top: 0.5rem;"
+                                                 class="callout callout-info">
+                                                <h5 style="margin: 0;">Dependant</h5>
+                                            </div>
+                                            <b>Number of Children :</b>
+                                            <span t-esc="emp.children"/>
+                                            <br/>
+                                            <b>Number of Kids Enrolled in AIS :</b>
+                                            <span t-esc="emp.children_enrolled"/>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </t>
+        </template>
+        <template id="my_documents_view" name="My Document">
+            <t t-call="portal.portal_layout">
+                <br/>
+                <style>td{ white-space: nowrap; }</style>
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <small class="text-muted">Document -</small>
+                            <span t-field="document.sudo().type_id.name"/>
+                        </h3>
+                        <div class="col-md text-md-right">
+                            <div class="d-inline-block">
+                                <small class="mr-2 mt-1 float-left">
+                                    <b>State:</b>
+                                </small>
+                                <span t-att-class="'badge badge-success' if document.state=='confirm' else '' 'badge badge-primary' if document.state=='expiry' else '' 'badge badge-danger' if document.state=='renew' else '' 'badge badge-warning' if document.state=='refuse' else '' 'badge badge-light' if document.state=='draft' else '' 'badge badge-info' if document.state=='issue' else ''"
+                                      t-field="document.state"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div style="padding: 4px;" class="callout callout-info">
+                            <h5 style="margin: 0;">Document Details</h5>
+                        </div>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover" style="border:0;">
+                                <tbody>
+                                    <tr>
+                                        <td style="border-top:0px;">
+                                            <label class="control-label">Document :</label>
+                                        </td>
+                                        <td style="border-top:0px;">
+                                            <span t-field="document.sudo().type_id.name"/>
+                                        </td>
+                                        <td style="border-top:0px;">
+                                            <label class="control-label">Date of Issue :</label>
+                                        </td>
+                                        <td style="border-top:0px;">
+                                            <span t-field="document.issue_date"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border-top:0px;">
+                                            <label class="control-label">Date of Expiry :</label>
+                                        </td>
+                                        <td style="border-top:0px;">
+                                            <span t-field="document.expiry_date"/>
+                                        </td>
+                                        <td style="border-top:0px;">
+                                            <label class="control-label">Place of Issue :</label>
+                                        </td>
+                                        <td style="border-top:0px;">
+                                            <span t-field="document.issue_place"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="padding: 4px;" class="callout callout-info">
+                            <h5 style="margin: 0;">Attachment</h5>
+                        </div>
+                        <table class="table table-hover table-bordered">
+                            <tbody>
+                                <t t-foreach="document.attachment_ids" t-as="attachment">
+                                    <tr>
+                                        <td>
+                                            <span t-field="attachment.sudo().name"/>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-primary"
+                                               t-attf-href="/web/content/{{attachment.id}}?download=true">
+                                                <i class="fas fa-download"></i>Download
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+        <template id="my_onboard" name="My Portal Onboard Plans">
+            <t t-call="portal.portal_layout">
+                <br/>
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="text-muted">
+                                <i class="fas fa-calendar-alt"></i>My Onboard Plans
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <t t-call="portal.portal_table">
+                            <thead>
+                                <tr>
+                                    <th>Summary</th>
+                                    <th>Team</th>
+                                    <th>Individual Email</th>
+                                    <th>Responsible Person</th>
+                                    <th>Done</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="onboards" t-as="onboard">
+                                    <tr>
+                                        <td>
+                                            <span t-esc="onboard.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="onboard.team_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="onboard.email"/>
+                                        </td>
+                                        <td>
+                                            <t t-foreach="onboard.responsible_id" t-as="responsible">
+                                                <span style=" background: #17a2b885; padding: 0px 6px 1px 7px; border-radius: 15px;"
+                                                      t-esc="responsible.name"/>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <span t-esc="onboard.done"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="onboard.date"/>
+                                        </td>
+
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

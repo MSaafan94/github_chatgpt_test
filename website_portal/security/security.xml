@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data >
+        <record id="leaves_portal_view_rule" model="ir.rule">
+            <field name="name">Leaves: portal users: portal or following</field>
+            <field name="model_id" ref="hr_holidays.model_hr_leave"/>
+            <field name="domain_force">[
+                '|','|',
+                ('message_partner_ids', 'child_of', [user.partner_id.commercial_partner_id.id]),
+                ('message_partner_ids', 'in', [user.partner_id.id]),
+                ('employee_id', 'in', [user.employee_id.id])
+                ]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+    </data>
+</odoo>

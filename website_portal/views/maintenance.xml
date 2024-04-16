@@ -1,0 +1,713 @@
+<odoo>
+    <data>
+        <template id="portal_ment" name="Maintenance Requisition">
+            <t t-call="portal.portal_layout">
+                <t t-set="breadcrumbs_searchbar" t-value="True"/>
+                <t t-call="portal.portal_searchbar">
+                    <t t-set="title">Maintenance</t>
+                </t>
+                <div class="row mt-2 mb-2">
+                    <div class="col-12">
+                        <a href="/my/maintenance_request_insert_view" class="create_new btn bg-gradient-info">
+                            <i class="fas fa-shopping-basket"></i>New Maintenance Request
+                        </a>
+                    </div>
+                </div>
+                <div t-if="not ments" class="alert alert-info">There are currently no Maintenance Request for your
+                    account.
+                </div>
+                <t t-if="ments" t-call="portal.portal_table">
+                    <thead>
+                        <tr class = "text-center">
+                            <th>#</th>
+                            <th>Number</th>
+                            <th>Maintenance</th>
+                            <th>Maintenance Type</th>
+                            <th>Request Date</th>
+                            <th>Schedule Date</th>
+                            
+                            <th class="text-center">Stage</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <t t-set="i" t-value="1"/>
+                    <t t-foreach="ments" t-as="ment">
+                        <tr class = "text-center">
+                            <td class="text-center">
+                                <span t-esc="i"/>
+                                <t t-set="i" t-value="i+1"/>
+                            </td>
+                            <td class="text-center">
+                                <span t-field="ment.name"/>
+                            </td>
+                            <td  class="text-center">
+                                <span t-field="ment.maintenance_type_custom"/>
+                            </td>
+                            <td class="text-center">
+                                <t t-if = "ment.maintenance_type_custom == 'order'">
+                                    <span t-field="ment.order_type_id"/>
+                                </t>
+                                <t t-else = "">
+                                    <span t-field="ment.repair_type_id"/>
+                                </t>
+                            </td>
+                            <td class="text-center">
+                                <span t-field="ment.request_date"></span>
+                            </td>
+                            <td class="text-center">
+                                <span t-field="ment.schedule_date"></span>
+                            </td>
+                            <td class="text-center">
+                                <span t-field="ment.state"/>
+                            </td>
+                            <td class="text-center py-0 align-middle">
+                                <div class="btn-group btn-group-sm">
+                                    <a t-attf-href="/my/maintenance_request/#{ment.id}" class="btn btn-info">
+                                        <i class="fas fa-eye"></i>View
+                                    </a>
+                                    <a t-if="ment.state == 'draft' and not approval"
+                                       t-attf-href="/my/maintenance_request/confirm/#{ment.id}"
+                                       class="btn btn-success">
+                                        <i class="fas fa-check"></i>Confirm
+                                    </a>
+                                    <a t-if="ment.state == 'draft' and not approval"
+                                       t-attf-href="/my/maintenance_request/edit/#{ment.id}"
+                                       class="btn btn-success">
+                                        <i class="fas fa-edit"></i>Edit
+                                    </a>
+                                    <a t-if="ment.state == 'draft' and not approval"
+                                       t-attf-href="/my/maintenance_request/delete/#{ment.id}"
+                                       class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>Delete
+                                    </a>
+                                    <a t-if="approval and ment.state == 'submited'"
+                                       t-attf-href="/my/maintenance_request/submit/#{ment.id}"
+                                       class="btn btn-success">
+                                        <i class="fas fa-check"></i>Submit
+                                    </a>
+                                    <a t-if="approval and ment.state == 'dm_to_approve'"
+                                       t-attf-href="/my/maintenance_request/dm/#{ment.id}"
+                                       class="btn btn-success">
+                                        <i class="fas fa-check"></i>Direct Manager Approval
+                                    </a>
+                                    <a t-if="approval and ment.state == 'om_to_approve'"
+                                       t-attf-href="/my/maintenance_request/om/#{ment.id}"
+                                       class="btn btn-success">
+                                        <i class="fas fa-check"></i>Operation Manager Approve
+                                    </a>
+                                    <a t-if="approval and ment.state == 'mm_to_approve'"
+                                       t-attf-href="/my/maintenance_request/mm/#{ment.id}"
+                                       class="btn btn-success">
+                                        <i class="fas fa-check"></i>Maintenance Manager Approve
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <template id="maintenance_request_submit" name="Maintenance: Submit a Request">
+
+            <t t-call="portal.portal_layout">
+                <br/>
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">New Maintenance Request</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    <form action="/maintenance/insert" method="post" id="maintenance_form"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card-body o_portal_leaves_details">
+
+                            <div class="form-group">
+                                <label>Maintenance Type</label>
+                                <select class="form-control  maintenance_type_custom" required="required"
+                                        name="maintenance_type_custom">
+                                    <option value="" selected="selected"
+                                            disabled="disabled">Select Maintenance Type
+                                    </option>
+                                    <option
+                                            value="order">
+                                        Order
+                                    </option>
+                                    <option
+                                            value="repair">
+                                        Repair
+                                    </option>
+                                </select>
+                            </div>
+
+
+                            <div class="form-group order_type" style="display : none;">
+                                <label>Order Type</label>
+                                <select class="form-control "
+                                        name="order_type_id">
+                                    <option value="" selected="selected"
+                                            disabled="disabled">Select Order Type
+                                    </option>
+                                    <t t-foreach="order_types" t-as="order_type">
+                                        <option
+                                                t-att-value="order_type.id">
+                                            <t t-esc="order_type.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <!--                            <div class="form-group order_type" style="display : none;">-->
+                            <!--                                <label>Order Type</label>-->
+                            <!--                                <select class="form-control "-->
+                            <!--                                        name="order_type_id">-->
+                            <!--                                    <option value="" selected="selected"-->
+                            <!--                                            disabled="disabled">Scheduled Date 2-->
+                            <!--                                    </option>-->
+                            <!--                                    <t t-foreach="order_types" t-as="order_type">-->
+                            <!--                                        <option-->
+                            <!--                                                t-att-value="order_type.id">-->
+                            <!--                                            <t t-esc="order_type.name"/>-->
+                            <!--                                        </option>-->
+                            <!--                                    </t>-->
+                            <!--                                </select>-->
+                            <!--                            </div>-->
+                            <div class="form-group repair_type" style="display : none;">
+                                <label>Repair Type</label>
+                                <select class="form-control"
+                                        name="repair_type_id">
+                                    <option value="" selected="selected"
+                                            disabled="disabled">Select Repair Type
+                                    </option>
+                                    <t t-foreach="repair_types" t-as="repair_type">
+                                        <option
+                                                t-att-value="repair_type.id">
+                                            <t t-esc="repair_type.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea type="text" class="form-control name" name="name" required="required"/>
+                            </div>
+                            <div class="form-group">
+                                <label>Priority</label>
+                                <select class="form-control  priority" required="required"
+                                        name="priority">
+                                    <option value="" selected="selected"
+                                            disabled="disabled">
+                                    </option>
+                                    <option
+                                            value="0">
+                                        Very Low
+                                    </option>
+                                    <option
+                                            value="1">
+                                        Low
+                                    </option>
+                                    <option
+                                            value="2">
+                                        Medium
+                                    </option>
+                                    <option
+                                            value="3">
+                                        High
+                                    </option>
+                                </select>
+
+                            </div>
+                            <!--                            <div class="form-group">-->
+                            <!--                                <label class="control-label" for="schedule_date">Scheduled Date</label>-->
+                            <!--                                <input type="date" name="schedule_date" required="required"-->
+                            <!--                                       class="form-control date_to schedule_date"-->
+                            <!--                                       placeholder="DD/MM/YYYY"/>-->
+                            <!--                            </div>-->
+                            <!--                            changed-->
+                            <div class="form-group">
+                                <label>Scheduled Period</label>
+                                <select class="form-control" required="required"
+                                        name="schedule_date">
+                                    <option value="" selected="selected"
+                                            disabled="disabled">
+                                    </option>
+                                    <option
+                                            value="school_week">
+                                        School week
+                                    </option>
+                                    <option
+                                            value="summer_break">
+                                        Summer Break
+                                    </option>
+                                    <option
+                                            value="winter_break">
+                                        Winter Break
+                                    </option>
+                                    <option
+                                            value="fall_break">
+                                        Fall Break
+                                    </option>
+                                    <option
+                                            value="spring_break">
+                                        Spring Break
+                                    </option>
+                                </select>
+                            </div>
+                            <!--                            changed-->
+                            <div class="form-group">
+                                <label class="control-label" for="location">Location</label>
+                                <input type="text" class="form-control date_to location" t-att-value="location"
+                                       name="location"/>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="date_to">Employee Name</label>
+                                <input type="text" t-att-value="employee_name" readonly="1"/>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Employee Room Number</label>
+                                <input type="text" t-att-value="employee_room_number" readonly="1"/>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="attachment">Maintenance Attachments</label>
+                                <div class="input-group">
+                                    <input type="file" name="attachment" multiple="multiple"
+                                           data-show-upload="true" data-show-caption="true" lass="file"
+                                           data-show-preview="true" accept=".png,.jpg,.jpeg,.pdf,image/*"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </t>
+        </template>
+
+        <template id="portal_maint_review" name="My Requisition">
+            <t t-call="portal.portal_layout">
+                <div class="row mb-2">
+                    <!--                    added-->
+                    <div class="card card-info card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <small class="text-muted">Description -</small>
+                                <span t-field="ment.name"/>
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="padding: 4px;" class="callout callout-info">
+                                <div class="row">
+                                    <div class="col-3 text-left align-left">
+                                        <h5 style="margin: 0;">Maintenance Details</h5>
+                                    </div>
+                                    <div class="col-9 text-right align-right">
+                                        <a t-if="ment.state == 'draft' and not approval"
+                                           t-attf-href="/my/maintenance_request/confirm/#{ment.id}"
+                                           class="btn btn-success">
+                                            <i class="fas fa-check"></i>Confirm
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row mb-2">
+                                        <div class="col-md-6">
+                                            <strong class="col-12">Maintenance Type :</strong>
+                                            <span t-if="ment.maintenance_type_custom"
+                                                  t-field="ment.maintenance_type_custom"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+                                        <div class="col-md-6" t-if = "ment.maintenance_type_custom != 'repair'">
+                                            <strong class="col-12">Order Type :</strong>
+                                            <span t-if="ment.order_type_id"
+                                                  t-field="ment.order_type_id"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+                                        <div class="col-md-6" t-else = "">
+                                            <strong class="col-12">Repair Type :</strong>
+                                            <span t-if="ment.repair_type_id"
+                                                  t-field="ment.repair_type_id"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong class="col-12">Priority :</strong>
+                                            <span t-if="ment.priority"
+                                                  t-field="ment.priority"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong class="col-12">Schedule Period :</strong>
+                                            <span t-if="ment.maintenance_type_portal"
+                                                  t-field="ment.maintenance_type_portal"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <strong class="col-12">Location :</strong>
+                                            <span t-if="ment.location"
+                                                  t-field="ment.location"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong class="col-12">Descritpion :</strong>
+                                            <span t-if="ment.description"
+                                                  t-field="ment.description"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong class="col-12">Room Number :</strong>
+                                            <span t-if="ment.room_number"
+                                                  t-field="ment.room_number"/>
+                                            <span t-else="" class="text-muted">-</span>
+                                        </div>
+
+                                    </div>
+                                    <div class="row mb-2">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <br/>
+                        </div>
+                        <div class="card card-info card-outline">
+                            <div class="mt32 card-body">
+                                <h4>
+                                    <strong>Message and communication history</strong>
+                                </h4>
+                                <div class="mt16">
+                                    <h1 t-esc="object"/>
+                                    <t t-call="portal.message_thread">
+                                        <t t-set="object" t-value="ment"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+            <!--                    ended-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Description :</strong>-->
+            <!--                        <span t-if="ment.name" t-field="ment.name"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Maintenance Type :</strong>-->
+            <!--                        <span t-if="ment.maintenance_type_custom"-->
+            <!--                              t-field="ment.maintenance_type_custom"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Priority :</strong>-->
+            <!--                        <span t-if="ment.priority"-->
+            <!--                              t-field="ment.priority"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Schedule Date :</strong>-->
+            <!--                        <span t-if="ment.schedule_date"-->
+            <!--                              t-field="ment.schedule_date"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Location :</strong>-->
+            <!--                        <span t-if="ment.location"-->
+            <!--                              t-field="ment.location"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--                <span t-field="ment.name"/>-->
+
+
+        </template>
+
+        <template id="portal_maint_edit" name="My Maintenance">
+            <t t-call="portal.portal_layout">
+                <div class="row mb-2">
+                    <!--                    added-->
+                    <form t-att-action="'/my/maintenance_request/edit/%s' % (ment.id)" method="post"
+
+                          class="container-fluid mt32" id="pd_form" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card card-info card-outline">
+                            <div class="form-group col-md-12">
+
+                                    <label>Scheduled Period</label>
+                                            <br/>
+                                    
+                                    <div>
+                                    <select class="form-control  schedule_date" required="required"
+                                            name="schedule_date">
+                                        <t t-foreach='selection_schedule_date_value' t-as="item">
+                                            <option t-att-value="item[0]" t-esc="item[1]"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                            <label>Maintenance Type</label>
+                                            <br/>
+                                            
+                                            <div>
+                                            <select class="form-control  maintenance_type_custom" required="required"
+                                                    name="maintenance_type_custom">
+                                                <t t-foreach='selection_maint_value' t-as="item">
+                                                    <option t-att-value="item[1]" t-esc="item[0]"/>
+                                                </t>
+                                            </select>
+                                            </div>
+                                    </div>
+                                    <div class="form-group order_type" t-att-style="'display : none;' if ment.maintenance_type_custom == 'repair' else '' ">
+                                        <label>Order Type</label>
+                                            <br/>
+                                        
+                                        <div>
+                                        <select class="form-control "
+                                                name="order_type_id" t-att-value="ment.order_type_id.id">
+                                            <t t-if = "ment.maintenance_type_custom != 'repair'">
+                                                <option
+                                                        t-att-value="ment.order_type_id.id">
+                                                    <t t-esc="ment.order_type_id.name"/>
+                                                </option>
+                                            </t>
+                                            <t t-else = "">
+                                                <option value="" selected="selected" disabled="disabled"/>
+                                            </t>
+                                            <t t-foreach="order_types - ment.order_type_id if ment.maintenance_type_custom != 'repair' else order_types" t-as="order_type">
+                                                <option
+                                                        t-att-value="order_type.id">
+                                                    <t t-esc="order_type.name"/>
+                                                </option>
+                                            </t>
+                                        </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group repair_type" t-att-style="'display : none;' if ment.maintenance_type_custom == 'order' else '' ">
+                                        <label>Repair Type</label>
+                                            <br/>
+                                        
+                                        <div>
+                                        <select class="form-control"
+                                                name="repair_type_id" t-att-value="ment.repair_type_id.id">
+                                            <t t-if = "ment.maintenance_type_custom != 'order'">
+                                                <option
+                                                        t-att-value="ment.repair_type_id.id">
+                                                    <t t-esc="ment.repair_type_id.name"/>
+                                                </option>
+                                            </t>
+                                            <t t-else = "">
+                                                <option value="" selected="selected" disabled="disabled"/>
+                                            </t>
+                                            <t t-foreach="repair_types - ment.repair_type_id if ment.maintenance_type_custom != 'order' else repair_types" t-as="repair_type">
+                                                <option
+                                                        t-att-value="repair_type.id">
+                                                    <t t-esc="repair_type.name"/>
+                                                </option>
+                                            </t>
+                                        </select>
+                                        </div>
+                                    </div>
+                                    <label class="control-label" for="name">Description</label>
+                                    <div class="input-group date">
+                                        <input t-att-value="ment.description" type="html" name="description"
+                                               required="required" class="form-control"/>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                            <label>Priority</label>
+                                            <br/>
+                                            <div>
+                                            <select class="form-control  priority" required="required"
+                                                    name="priority">
+                                                <t t-foreach='selection_priority_value' t-as="item">
+                                                    <option t-att-value="item[0]" t-esc="item[1]" t-att-selected = "item[0] == ment.priority"/>
+                                                </t>
+                                            </select>
+                                            </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label" for="name">Location</label>
+                                        <div>
+                                        <input t-att-value="ment.location" type="text" name="location"
+                                               required="required" class="form-control"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="padding: 4px;width: 50%" class="callout callout-info"
+                                         t-if="attachment_ids">
+                                        <h5 style="margin: 0;">Attachments</h5>
+                                    </div>
+                                    <div class="table-responsive" style="width: 50%" t-if="attachment_ids">
+                                        <table class="table table-bordered table-scroll mt-3">
+                                            <t t-foreach="attachment_ids" t-as="attachment">
+                                                <tr>
+                                                    <td>
+                                                        <a t-att-href="'/attachment/download?attachment_id=%i' % attachment.id"
+                                                           class="btn btn-info">
+                                                            <span t-esc="attachment.name" class="fa fa-download"/>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <a t-attf-href="/attachment/delete/#{attachment['id']}/#{ment.id}"
+                                                           class="btn btn-danger">
+                                                            <i class="fas fa-trash"></i>Delete
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </t>
+
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="attachment">Maintenance Attachments</label>
+                                        <div class="input-group">
+                                            <input type="file" name="attachment" multiple="multiple"
+                                                   data-show-upload="true" data-show-caption="true" lass="file"
+                                                   data-show-preview="true" accept=".png,.jpg,.jpeg,.pdf,image/*"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa fa-paper-plane"></i>Submit
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="history.go(-1)">
+                                        <i class="fa fa-arrow-circle-left"></i>Back
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <!--                        <div class="card-header">-->
+                            <!--                            <h3 class="card-title">-->
+                            <!--                                <small class="text-muted">Description -</small>-->
+                            <!--                                <span t-field="ment.name"/>-->
+                            <!--                            </h3>-->
+                            <!--                        </div>-->
+                            <!--                        <div class="card-body">-->
+                            <!--                            <div style="padding: 4px;" class="callout callout-info">-->
+                            <!--                                <div class="row">-->
+                            <!--                                    <div class="col-3 text-left align-left">-->
+                            <!--                                        <h5 style="margin: 0;">Maintenance Details</h5>-->
+                            <!--                                    </div>-->
+                            <!--                                    <div class="col-9 text-right align-right">-->
+                            <!--                                        <a t-if="ment.state == 'draft' and not approval"-->
+                            <!--                                           t-attf-href="/my/maintenance_request/confirm/#{ment.id}"-->
+                            <!--                                           class="btn btn-success">-->
+                            <!--                                            <i class="fas fa-check"></i>Confirm-->
+                            <!--                                        </a>-->
+                            <!--                                    </div>-->
+                            <!--                                </div>-->
+
+                            <!--                            </div>-->
+                            <!--                            <div class="row">-->
+                            <!--                                <div class="col-md-12">-->
+                            <!--                                    <div class="row mb-2">-->
+                            <!--                                        <div class="col-md-6">-->
+                            <!--                                            <strong class="col-12">Maintenance Type :</strong>-->
+                            <!--                                            <span t-if="ment.maintenance_type_custom"-->
+                            <!--                                                  t-field="ment.maintenance_type_custom"/>-->
+                            <!--                                            <span t-else="" class="text-muted">-</span>-->
+                            <!--                                        </div>-->
+                            <!--                                        <div class="col-md-6">-->
+                            <!--                                            <strong class="col-12">Order Type :</strong>-->
+                            <!--                                            <span t-if="ment.order_type_id"-->
+                            <!--                                                  t-field="ment.order_type_id"/>-->
+                            <!--                                            <span t-else="" class="text-muted">-</span>-->
+                            <!--                                        </div>-->
+                            <!--                                        <div class="col-md-6">-->
+                            <!--                                            <strong class="col-12">Priority :</strong>-->
+                            <!--                                            <span t-if="ment.priority"-->
+                            <!--                                                  t-field="ment.priority"/>-->
+                            <!--                                            <span t-else="" class="text-muted">-</span>-->
+                            <!--                                        </div>-->
+                            <!--                                    </div>-->
+                            <!--                                    <div class="row mb-2">-->
+                            <!--                                        <div class="col-md-6">-->
+                            <!--                                            <strong class="col-12">Schedule Date :</strong>-->
+                            <!--                                            <span t-if="ment.maintenance_type_portal"-->
+                            <!--                                                  t-field="ment.maintenance_type_portal"/>-->
+                            <!--                                            <span t-else="" class="text-muted">-</span>-->
+                            <!--                                        </div>-->
+                            <!--                                        <div class="col-md-6">-->
+                            <!--                                            <strong class="col-12">Location :</strong>-->
+                            <!--                                            <span t-if="ment.location"-->
+                            <!--                                                  t-field="ment.location"/>-->
+                            <!--                                            <span t-else="" class="text-muted">-</span>-->
+                            <!--                                        </div>-->
+                            <!--                                    </div>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+                            <br/>
+                            <br/>
+                            <!--                        </div>-->
+                        </div>
+                    </form>
+                </div>
+            </t>
+            <!--                    ended-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Description :</strong>-->
+            <!--                        <span t-if="ment.name" t-field="ment.name"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Maintenance Type :</strong>-->
+            <!--                        <span t-if="ment.maintenance_type_custom"-->
+            <!--                              t-field="ment.maintenance_type_custom"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Priority :</strong>-->
+            <!--                        <span t-if="ment.priority"-->
+            <!--                              t-field="ment.priority"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Schedule Date :</strong>-->
+            <!--                        <span t-if="ment.schedule_date"-->
+            <!--                              t-field="ment.schedule_date"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                    <div class="col-md-6">-->
+            <!--                        <strong class="col-12">Location :</strong>-->
+            <!--                        <span t-if="ment.location"-->
+            <!--                              t-field="ment.location"/>-->
+            <!--                        <span t-else="" class="text-muted">-</span>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--                <span t-field="ment.name"/>-->
+
+
+        </template>
+
+
+        <template id="portal_maint_success" name="Maintenance Request Successfully Submitted">
+            <t t-call="portal.portal_layout">
+                <div id="wrap">
+                    <div class="container">
+                        <div class="col-md-12">
+                            <div class="alert alert-success">
+                                Maintenance Request created successfully.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+
+    </data>
+</odoo>

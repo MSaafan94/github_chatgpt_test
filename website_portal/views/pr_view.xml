@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="portal_pr" name="Purchase Requisition">
+            <t t-call="portal.portal_layout">
+                <t t-set="breadcrumbs_searchbar" t-value="True"/>
+                <t t-call="portal.portal_searchbar">
+                    <t t-set="title">Requisition</t>
+                </t>
+                <div class="row mt-2 mb-2">
+                    <div class="col-12">
+                        <a href="/my/purchase_request/submit" class="create_new btn bg-gradient-info">
+                            <i class="fas fa-shopping-basket"></i>New Requisition</a>
+                    </div>
+                </div>
+                <div t-if="not pds" class="alert alert-info">There are currently no Purchase Requisition for your
+                    account.</div>
+                <t t-if="pds" t-call="portal.portal_table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Number</th>
+                            <th>Requisition Date</th>
+                            <th>Expected Date</th>
+                            <th class="text-center">Stage</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <t t-set="i" t-value="1"/>
+                    <t t-foreach="pds" t-as="pd">
+                        <tr>
+                            <td>
+                                <span t-esc="i"/>
+                                <t t-set="i" t-value="i+1"/>
+                            </td>
+                            <td>
+                                <span t-field="pd.sequence"/>
+                            </td>
+                            <td>
+                                <span t-field="pd.requisition_date"></span>
+                            </td>
+                            <td>
+                                <span t-field="pd.requisition_deadline_date"/>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="badge badge-pill badge-info" t-field="pd.state"/>
+                            </td>
+                            <td class="text-center py-0 align-middle">
+                                <div class="btn-group btn-group-sm">
+                                    <a t-attf-href="/my/purchase_request/#{pd.id}" class="btn btn-info">
+                                        <i class="fas fa-eye"></i>View</a>
+
+                                    <a t-if="pd.picking_status == True and pd.state=='out_for_delivery'"
+                                       t-attf-href="/my/purchase_request/receive/#{pd.id}" class="btn btn-dark">
+                                        <i class="fas"></i>Receive</a>
+                                    <!--<a t-if="pd.state == 'new'" t-attf-href="/my/pd/edit/#{pd.id}" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i>Edit</a>-->
+                                    <a t-if="pd.state == 'new'" t-attf-href="/my/purchase_request/edit/#{pd.id}"
+                                       class="btn btn-primary">
+                                        <i class="fas fa-edit"></i>Edit
+                                    </a>
+                                    <a t-if="pd.state == 'new'" t-attf-href="/my/purchase_request/confirm/#{pd.id}"
+                                       class="btn btn-success">
+                                        <i class="fas fa-check"></i>Confirm
+                                    </a>
+                                    <a t-if="pd.state == 'new'" t-attf-href="/my/purchase_request/delete/#{pd.id}"
+                                       class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>Delete</a>
+                                </div>
+                                <!--                                <div class="btn-group btn-group-sm">-->
+                                <!--                                    <button type="button" class="btn btn-default">Action</button>-->
+                                <!--                                    <button type="button" class="btn btn-default dropdown-toggle dropdown-icon"-->
+                                <!--                                            data-toggle="dropdown">-->
+                                <!--                                        <span class="sr-only">Toggle Dropdown</span>-->
+                                <!--                                    </button>-->
+                                <!--                                    <div class="dropdown-menu" role="menu">-->
+                                <!--                                        <a class="dropdown-item" t-attf-href="/my/purchase_request/#{pd.id}">View</a>-->
+                                <!--                                        <div class="dropdown-divider"></div>-->
+                                <!--                                        <a class="dropdown-item" t-attf-href="/my/purchase_request/confirm/#{pd.id}">Confirm</a>-->
+                                <!--                                        <div class="dropdown-divider"></div>-->
+                                <!--                                        <a class="dropdown-item" t-attf-href="/my/purchase_request/edit/#{pd.id}">Edit</a>-->
+                                <!--                                        <div class="dropdown-divider"></div>-->
+
+                                <!--                                        <a class="dropdown-item" t-attf-href="/my/purchase_request/delete/#{pd.id}">Delete</a>-->
+                                <!--                                    </div>-->
+                                <!--                                </div>-->
+                            </td>
+                        </tr>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <template id="portal_my_pr" name="My Requisition">
+            <t t-call="portal.portal_layout">
+                <br/>
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <small class="text-muted"> Requisition -</small>
+                            <span t-field="pr.display_name"/>
+                        </h3>
+                        <div class="col-md text-md-right">
+                            <div class="d-inline-block">
+                                <small class="mr-2 mt-1 float-left">
+                                    <b>State:</b>
+                                </small>
+                                <div t-foreach="pr" t-as="tf" class="float-left">
+                                    <span t-att-class="'badge badge-success' if tf.state=='validate' else '' 'badge badge-primary' if tf.state=='confirm' else '' 'badge badge-danger' if tf.state=='cancel' else '' 'badge badge-warning' if tf.state=='refuse' else '' 'badge badge-light' if tf.state=='draft' else '' 'badge badge-info' if tf.state=='validate1' else ''"
+                                          t-field="tf.state"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div style="padding: 4px;" class="callout callout-info">
+                            <div class="row">
+                                <div class="col-3 text-left align-left">
+                                    <h5 style="margin: 0;">Requisition Details</h5>
+                                </div>
+                                <div class="col-9 text-right align-right">
+                                    <a t-if="pr.state == 'new'" t-attf-href="/my/purchase_request/confirm/#{pr.id}"
+                                       class="btn btn-primary" style="color: white;background-color:#17a2b8 ">
+                                        <i class="fas fa-check"></i>Confirm
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="border-bottom d-flex justify-content-between py-2 mb-3 align-items-center">
+                                    <h5 class="mb-0">
+                                        <span class="text-nowrap" t-esc="pr.sequence"/>
+                                    </h5>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <strong class="col-12">Number :</strong>
+                                        <span t-if="pr.sequence" t-field="pr.sequence"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="col-12">Requisition Date :</strong>
+                                        <span t-if="pr.requisition_date" t-field="pr.requisition_date"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <strong class="col-12">Employee :</strong>
+                                        <span t-if="pr.employee_id" t-field="pr.employee_id"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="col-12">Expected Date :</strong>
+                                        <span t-if="pr.requisition_deadline_date"
+                                              t-field="pr.requisition_deadline_date"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <strong class="col-12">Department :</strong>
+                                        <span t-if="pr.department_id" t-field="pr.department_id"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="col-12">Manager :</strong>
+                                        <span t-if="pr.requisition_responsible_employee_id"
+                                              t-field="pr.requisition_responsible_employee_id"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <strong class="col-12">Room Number :</strong>
+                                        <span t-if="pr.room_no" t-field="pr.room_no"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <strong class="col-12">Reason For Requisition:</strong>
+                                        <span t-if="pr.reason_for_requisition" t-field="pr.reason_for_requisition"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <br/>
+                        <div style="padding: 4px;width: 50%" class="callout callout-info" t-if="attachment_ids">
+                            <h5 style="margin: 0;">Attachments</h5>
+                        </div>
+                        <div class="table-responsive" style="width: 50%" t-if="attachment_ids">
+                            <table class="table table-bordered table-scroll mt-3">
+                                <t t-foreach="attachment_ids" t-as="attachment">
+                                    <tr>
+                                        <td>
+                                            <a t-att-href="'/attachment/download?attachment_id=%i' % attachment.id"
+                                               class="btn btn-info">
+                                                <span t-esc="attachment.name" class="fa fa-download"/>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </t>
+
+                            </table>
+                        </div>
+
+                        <div style="padding: 4px;" class="callout callout-info">
+                            <h5 style="margin: 0;">Requisitions Lines</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-scroll mt-3">
+                                <thead>
+                                    <tr>
+                                        <!--                                        <th scope="col">Requisition Action</th>-->
+                                        <th scope="col">Item</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col" t-if = "False">Unit Cost</th>
+                                        <th scope="col" t-if = "False">Currency</th>
+                                        <th scope="col" t-if = "False">Source</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="pr.requisition_line_ids" t-as="line">
+                                        <tr>
+                                            <!--                                        <td>-->
+                                            <!--                                             <span  t-field="line.requisition_action" />-->
+                                            <!--                                        </td>-->
+                                            <td>
+                                                <span t-field="line.product_id"/></td>
+                                            <td>
+                                                <span t-field="line.description"/></td>
+                                            <td>
+                                                <span t-field="line.qty"/></td>
+                                            <td t-if = "False">
+                                                <span t-field="line.estimate_cost"/></td>
+                                            <td t-if = "False">
+                                                <span t-field="line.currency_id"/>
+                                            </td>
+                                            <td t-if = "False">
+                                                <!--                                                <span t-field="line.vendor_id"/>-->
+                                                <span t-field="line.vendor_text"/>
+                                            </td>
+
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <t t-call="portal.message_thread">
+                            <t t-set="object" t-value="pr"/>
+                            <t t-set="chatter_mode" t-value="'json'"/>
+                        </t>
+                        <style>
+                            .js_publish_btn {
+                                display: none
+                            }
+                        </style>
+                    </div>
+                </div>
+
+            </t>
+        </template>
+
+        <template id="portal_my_pr_edit" name="My  Purchase Requisition">
+            <t t-call="portal.portal_layout">
+                <br/>
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <small class="text-muted"> Requisition -</small>
+                            <span t-field="pr.display_name"/>
+                        </h3>
+                        <div class="col-md text-md-right">
+                            <div class="d-inline-block">
+                                <small class="mr-2 mt-1 float-left">
+                                    <b>State:</b>
+                                </small>
+                                <div t-foreach="pr" t-as="tf" class="float-left">
+                                    <span t-att-class="'badge badge-success' if tf.state=='validate' else '' 'badge badge-primary' if tf.state=='confirm' else '' 'badge badge-danger' if tf.state=='cancel' else '' 'badge badge-warning' if tf.state=='refuse' else '' 'badge badge-light' if tf.state=='draft' else '' 'badge badge-info' if tf.state=='validate1' else ''"
+                                          t-field="tf.state"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form t-att-action="'/my/purchase_request/edit/%s' % (pr.id)" method="post"
+                          class="container-fluid mt32" id="pd_form" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="employee_id">Employee</label>
+                                    <div class="input-group date">
+                                        <input type="text" name="employee_id"
+                                               t-att-value="request.env.user.employee_id.display_name"
+                                               readonly="readonly" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="requisition_date">Requisition Date</label>
+                                    <div class="input-group date">
+                                        <input t-att-value="pr.requisition_date" type="date" name="requisition_date"
+                                               required="required" class="form-control" readonly="readonly"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="department_id">Department</label>
+                                    <div class="input-group date">
+                                        <input type="text" name="department_id"
+                                               t-att-value="request.env.user.employee_id.department_id.name"
+                                               readonly="readonly" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="requisition_deadline_date">Expected Date</label>
+                                    <div class="input-group date">
+                                        <input t-att-value="pr.requisition_deadline_date" type="date"
+                                               name="requisition_deadline_date" required="required"
+                                               class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="requisition_responsible_employee_id">
+                                        Manager</label>
+                                    <div class="input-group date">
+                                        <input type="text" t-att-value="request.env.user.employee_id.parent_id.name"
+                                               name="requisition_responsible_employee_id" readonly="readonly"
+                                               class="form-control cost"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="company_id">Company</label>
+                                    <div class="input-group date">
+                                        <input type="text" t-att-value="request.env.user.employee_id.company_id.name"
+                                               name="company_id" readonly="readonly" class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="room_no">
+                                        Room Number</label>
+                                    <div class="input-group room_no">
+                                        <input type="text" t-att-value="pr.room_no"
+                                               name="room_no"
+                                               class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="padding: 4px;width: 50%" class="callout callout-info" t-if="attachment_ids">
+                                <h5 style="margin: 0;">Attachments</h5>
+                            </div>
+                            <div class="table-responsive" style="width: 50%"  t-if="attachment_ids">
+                                <table class="table table-bordered table-scroll mt-3">
+                                    <t t-foreach="attachment_ids" t-as="attachment">
+                                        <tr>
+                                            <td>
+                                                <a t-att-href="'/attachment/download?attachment_id=%i' % attachment.id"
+                                                   class="btn btn-info">
+                                                    <span t-esc="attachment.name" class="fa fa-download"/>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a t-attf-href="/attachment/delete/#{attachment['id']}/#{pr.id}"
+                                                   class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i>Delete</a>
+                                            </td>
+                                        </tr>
+                                    </t>
+
+                                </table>
+                            </div>
+                        <div class="form-group">
+                            <label for="attachment">Add Attachments</label>
+                            <div class="input-group">
+                                <input type="file" name="attachment" multiple="multiple"
+                                       data-show-upload="true" data-show-caption="true" lass="file"
+                                       data-show-preview="true" accept=".png,.jpg,.jpeg,.pdf,image/*"
+                                />
+                            </div>
+                        </div>
+                            <div class="form-group">
+                                <label for="reason_for_requisition">Reason For Requisition</label>
+                                <input t-att-value="pr.reason_for_requisition"
+                                       class="form-control reason_for_requisition" rows="3"
+                                       name="reason_for_requisition" placeholder="" required = "1"
+                                       style="margin-top: 0px; margin-bottom: 0px; height: 81px;"></input>
+                            </div>
+
+                            <label>Requisitions Lines</label>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-scroll mt-3" id="invoice">
+                                    <thead>
+                                        <tr>
+                                            <!--                                            <th scope="col">Requisition Action</th>-->
+                                            <!--                                            <th scope="col">Product</th>-->
+                                            <th scope="col">Item</th>
+                                            <th scope="col">Description</th>
+                                            
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col" t-if = "False">Unit Cost</th>
+                                            <th scope="col" t-if = "False">Currency</th>
+                                            <th scope="col" t-if = "False">Source</th>
+                                            <th scope="col">
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="multi">
+                                        <t t-foreach="pr.requisition_line_ids" t-as="line">
+                                            <tr id="addPart">
+                                                <input type="hidden" t-att-value="line.id" name="line_id"/>
+                                                <input type="hidden" t-att-value="line.requisition_id.id"
+                                                       name="requisition_id"/>
+                                                <!--                                            <td>-->
+                                                <!--                                                <select class="form-control" id="product-name" name="requisition_action">-->
+                                                <!--                                                    <option value=""></option>-->
+                                                <!--                                                    <option t-att-selected="line['requisition_action'] == 'purchase_order'" class="selected"  value="purchase_order">Purchase Order</option>-->
+                                                <!--                                                    <option t-att-selected="line['requisition_action'] == 'internal_picking'"  value="internal_picking">Internal Picking</option>-->
+                                                <!--                                                </select>-->
+                                                <!--                                            </td>-->
+                                                <!--                                            <td>-->
+                                                <!--                                                <select class="form-control" name="product_id"    >-->
+                                                <!--                                                    <option value="" selected="selected" disabled="disabled">Select </option>-->
+                                                <!--                                                    <t t-foreach="products" t-as="product">-->
+                                                <!--                                                        <option  t-att-selected="line['product_id']['id'] == product.id" t-att-value="product.id">-->
+                                                <!--                                                            <t t-esc="product.name" />-->
+                                                <!--                                                        </option>-->
+                                                <!--                                                    </t>-->
+                                                <!--                                                </select>-->
+
+                                                <!--                                            </td>-->
+                                            <td>
+                                                <select class="form-control item_select" name="product_id" required="required">
+                                                    <!--                                                    <option value="curr" selected="selected" disabled="disabled">Select-->
+                                                    <!--                                                        Currency</option>-->
+                                                    <option t-att-value="line.product_id.id" t-esc = "line.product_id.name"  t-att-data-other='line.product_id.is_other' t-att-data-desc='line.product_id.name if not line.product_id.is_other else ""'/>
+                                                    <t t-foreach="products - line.product_id" t-as="product">
+                                                        <option t-att-value="product.id"  t-att-data-other='product.is_other' t-att-data-desc='product.name if not product.is_other else ""'>
+                                                            <t t-esc="product.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </td>
+                                                <td>
+                                                    <input type="text" t-att-value="line['description']"
+                                                           name="description" required="required" class="form-control"/>
+                                                </td>
+                                                <td>
+                                                    <input type="number" step="1" t-att-value="int(line['qty'])"
+                                                           name="qty" class="form-control qty" required = "1" min="1"  />
+                                                </td>
+                                                <td t-if = "False">
+                                                    <input type="number" step="1" t-att-value="int(line['estimate_cost'])"
+                                                           name="estimate_cost" value="1" min="1"
+                                                           class="form-control"/>
+
+                                                </td>
+                                                <td t-if = "False">
+                                                    <select class="form-control" name="currency_id">
+                                                        <option value="request.env.user.employee_id.company_id.currency_id.id"
+                                                                selected="selected" disabled="disabled">Select
+                                                            Currency</option>
+                                                        <t t-foreach="currencies" t-as="currency">
+                                                            <option t-att-selected="line['currency_id']['id'] == currency.id"
+                                                                    t-att-value="currency.id">
+                                                                <t t-esc="currency.name"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </td>
+                                                <td t-if = "False">
+                                                    <input type="text" name="vendor_text"
+                                                           t-att-value="line['vendor_text']"
+                                                           class="form-control"/>
+
+                                                </td>
+                                                <td>
+                                                    <!--                                                <button class="btn btn-danger remove">-->
+                                                    <!--                                                    <i class="fa fa-times" aria-hidden="true"></i>-->
+                                                    <!--                                                </button>-->
+                                                    <a t-attf-href="/my/purchase_request/line/delete/#{line['id']}"
+                                                       class="btn btn-danger remove">
+                                                        <i class="fas fa-trash"></i>Delete
+                                                    </a>
+
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" id="addProduct" class="btn btn-info btn-block"><i
+                                    class="fa fa-plus"></i> Add a line</button>
+                            <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane"></i>Submit</button>
+                            <button type="button" class="btn btn-secondary" onclick="history.go(-1)">
+                                <i class="fa fa-arrow-circle-left"></i>Back</button>
+                        </div>
+                    </form>
+                    <div class="card-footer mt-5">
+                        <t t-call="portal.message_thread">
+                            <t t-set="object" t-value="pr"/>
+                            <t t-set="chatter_mode" t-value="'json'"/>
+                        </t>
+                        <style>
+                            .js_publish_btn {
+                                display: none
+                            }
+                        </style>
+                    </div>
+                </div>
+
+            </t>
+        </template>
+
+        <template id="website_portal.pr_submit" name="Purchase Requisition: Submit a Purchase Requisition">
+            <t t-call="portal.portal_layout">
+
+                <t t-set="additional_title">Requisition</t>
+                <br/>
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">New Requisition</h3>
+                    </div>
+                    <form action="/purchase_request/pr_insert" method="post" class="container-fluid mt32" id="pd_form"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="employee_id">Employee</label>
+                                    <div class="input-group date">
+                                        <input type="text" name="employee_id"
+                                               t-att-value="request.env.user.employee_id.name" readonly="readonly"
+                                               class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="requisition_date">Requisition Date</label>
+                                    <div class="input-group date">
+                                        <input type="date" name="requisition_date" required="required"
+                                               class="form-control" t-att-value="datetime.date.today()"
+                                               readonly="readonly"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="department_id">Department</label>
+                                    <div class="input-group date">
+                                        <input type="text" name="department_id"
+                                               t-att-value="request.env.user.employee_id.department_id.name"
+                                               readonly="readonly" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="requisition_deadline_date">Expected Date</label>
+                                    <div class="input-group date">
+                                        <input type="date" name="requisition_deadline_date" required="required"
+                                               class="form-control"
+                                               t-att-min = "datetime.date.today() + datetime.timedelta(days=5)"
+                                               t-att-value="datetime.date.today() + datetime.timedelta(days=5)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="requisition_responsible_employee_id">
+                                        Manager</label>
+                                    <div class="input-group date">
+                                        <input type="text" t-att-value="request.env.user.employee_id.parent_id.name"
+                                               name="requisition_responsible_employee_id" readonly="readonly"
+                                               class="form-control cost"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="company_id">Company</label>
+                                    <div class="input-group date">
+                                        <input type="text" t-att-value="request.env.user.employee_id.company_id.name"
+                                               name="company_id" readonly="readonly" class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="room_no">
+                                        Room Number</label>
+                                    <div class="input-group room_no">
+                                        <input type="text"
+                                               name="room_no"
+                                               class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reason_for_requisition">Reason For Requisition</label>
+                                <textarea class="form-control reason_for_requisition" rows="3"
+                                          name="reason_for_requisition" placeholder="" required = "1"
+                                          style="margin-top: 0px; margin-bottom: 0px; height: 81px;"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="attachment">PR Attachments</label>
+                                <div class="input-group">
+                                    <input type="file" name="attachment" multiple="multiple"
+                                           data-show-upload="true" data-show-caption="true" lass="file"
+                                           data-show-preview="true"
+                                    />
+                                </div>
+                                <!--                                <div class="input-group">-->
+                                <!--                                    <input type="file" name="attachment" multiple="multiple"/>-->
+                                <!--                                </div>-->
+                                <!--                                <div class="input-group">-->
+                                <!--                                    <input type="file" name="attachment" multiple="multiple"/>-->
+                                <!--                                </div>-->
+                                <!--                                <div class="input-group">-->
+                                <!--                                    <input type="file" name="attachment" multiple="multiple"/>-->
+                                <!--                                </div>-->
+                                <!--                                <div class="input-group">-->
+                                <!--                                    <input type="file" name="attachment" multiple="multiple"/>-->
+                                <!--                                </div>-->
+                            </div>
+
+                            <label>Requisitions Lines</label>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-scroll mt-3" id="invoice">
+                                    <thead>
+                                        <tr>
+                                            <!--                                        <th scope="col">Requisition Action</th>-->
+                                            <!--                                        <th scope="col">Product</th>-->
+                                            <th scope="col">Item</th>
+                                            <th scope="col">Description</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col" t-if = "False">Unit Cost</th>
+                                            <th scope="col" t-if = "False">Currency</th>
+                                            <th scope="col" t-if = "False">Source</th>
+                                            <th scope="col">
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="multi">
+                                        <tr id="addPart">
+                                            <td>
+                                                <select class="form-control item_select" name="product_id" required="required">
+                                                    <!--                                                    <option value="curr" selected="selected" disabled="disabled">Select-->
+                                                    <!--                                                        Currency</option>-->
+                                                    <option value="" selected="selected" disabled="disabled"/>
+                                                    <t t-foreach="products" t-as="product">
+                                                        <option t-att-value="product.id" t-att-data-other='product.is_other' t-att-data-desc='product.name if not product.is_other else ""'>
+                                                            <t t-esc="product.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </td>
+                                            <td>                                              
+                                                <input type="text" name="desc" placeholder = "Default Product name"
+                                                       class="form-control"/>
+                                            </td>
+                                            <td>
+                                                <input type="number" step="1" min="1" value="1" name="qty"
+                                                       class="form-control qty" required = "1"/>
+                                            </td>
+                                            <td t-if = "False">
+                                                <input type="number" step="1"
+                                                       name="estimate_cost" class="form-control" value="0"/>
+                                            </td>
+                                            <td t-if = "False">
+                                                <select class="form-control" name="currency_id" required="required">
+                                                    <!--                                                    <option value="curr" selected="selected" disabled="disabled">Select-->
+                                                    <!--                                                        Currency</option>-->
+                                                    <t t-foreach="currencies" t-as="currency">
+                                                        <option t-att-value="currency.id">
+                                                            <t t-esc="currency.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </td>
+                                            <td t-if = "False">
+                                                <input type="text" name="vendor_text"
+                                                       class="form-control" />
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-danger remove">
+                                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" id="addProduct" class="btn btn-info btn-block"><i
+                                    class="fa fa-plus"></i> Add a line</button>
+                            <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+                        </div>
+                        <!--                    <script type="text/javascript">-->
+                        <!--                            var today = new Date();-->
+                        <!--                            var dd = ("0" + (today.getDate())).slice(-2);-->
+                        <!--                            var mm = ("0" + (today.getMonth() +　1)).slice(-2);-->
+                        <!--                            var yyyy = today.getFullYear();-->
+                        <!--                            today = yyyy + '-' + mm + '-' + dd ;-->
+                        <!--                            &lt;!&ndash;                            $("#datepicker").attr("value", today);&ndash;&gt;-->
+                        <!--                            document.getElementById("datepicker").value = today;-->
+                        <!--                        </script>-->
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane"></i>Submit</button>
+                            <button type="button" class="btn btn-secondary" onclick="history.go(-1)">
+                                <i class="fa fa-arrow-circle-left"></i>Back</button>
+                        </div>
+                    </form>
+                    <!--                    <div class="card-footer mt-5">-->
+                    <!--                        <t t-call="portal.message_thread">-->
+                    <!--                            <t t-set="object" t-value="pr"/>-->
+                    <!--                            <t t-set="chatter_mode" t-value="'json'"/>-->
+                    <!--                        </t>-->
+                    <!--                        <style>-->
+                    <!--                            .js_publish_btn{-->
+                    <!--                            display:none-->
+                    <!--                            }-->
+                    <!--                        </style>-->
+                    <!--                    </div>-->
+                </div>
+            </t>
+        </template>
+        <template id="website_portal.portal_my_pd_edit" name="PD: Edit a PD">
+            <t t-call="portal.portal_layout">
+                <t t-set="additional_title">PD</t>
+                <br/>
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">New PD</h3>
+                    </div>
+                    <form t-att-action="'/my/pd/edit/%s' % (pd.id)" method="post" class="container-fluid mt32"
+                          id="pd_form" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="control-label" for="pd_activity">Professional Development
+                                        Activity</label>
+                                    <div class="input-group date">
+                                        <input type="text" name="pd_activity" t-att-value="pd.pd_activity"
+                                               required="required" id="pd_activity" class="form-control pd_activity"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="location_institution">Location/Institution</label>
+                                    <div class="input-group date">
+                                        <input type="text" name="location_institution"
+                                               t-att-value="pd.location_institution" required="required"
+                                               class="form-control location"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="grade_level">Grade/Subject Level</label>
+                                    <div class="input-group date">
+                                        <input type="text" name="grade_level" t-att-value="pd.grade_level"
+                                               required="required" class="form-control grade"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="date_from">Date From</label>
+                                    <div class="input-group date">
+                                        <input type="date" name="date_from" t-att-value="pd.date_from"
+                                               required="required" class="form-control date_from"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="date_to">Date To</label>
+                                    <div class="input-group date">
+                                        <input type="date" name="date_to" t-att-value="pd.date_to" required="required"
+                                               class="form-control date_to"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="cost">Registration cost</label>
+                                    <div class="input-group date">
+                                        <input type="number" step="0.01" t-att-value="pd.cost" name="cost"
+                                               required="required" class="form-control cost"/>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label" for="additional_cost">Additional costs</label>
+                                    <div class="input-group date">
+                                        <input type="number" step="0.01" t-att-value="pd.additional_cost"
+                                               name="additional_cost" required="required"
+                                               class="form-control add_cost"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Additional Information</label>
+                                <br/>
+                                <label for="brief_explanation">Brief Explanation</label>
+                                <textarea class="form-control brief" rows="3" name="brief_explanation"
+                                          placeholder="Brief explanation of your purpose in taking this course/workshop and how it will benefit your classroom instruction and/or professional growth"
+                                          style="margin-top: 0px; margin-bottom: 0px; height: 81px;">
+                                    <t t-esc="pd.brief_explanation"/>
+                                </textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="quality_description">Quality Description</label>
+                                <textarea class="form-control quality" rows="3" name="quality_description"
+                                          placeholder="Describe the quality of the program and how it supports the school’s mission, statement, goals, and strategic improvement plan"
+                                          style="margin-top: 0px; margin-bottom: 0px; height: 81px;">
+                                    <t t-esc="pd.quality_description"/>
+                                </textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="knowledge_description">Knowledge Description</label>
+                                <textarea class="form-control knowledge" rows="3" name="knowledge_description"
+                                          placeholder="Describe how you would “share” your knowledge/experience which you will gain with other AISE faculty members"
+                                          style="margin-top: 0px; margin-bottom: 0px; height: 81px;">
+                                    <t t-esc="pd.knowledge_description"/>
+                                </textarea>
+                            </div>
+                            <!--                            <div class="form-group">-->
+                            <!--                                <label for="attachment">PD Attachments</label>-->
+                            <!--                                <div class="input-group ">-->
+                            <!--                                    <input type="file" name="attachment" multiple="multiple"/>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane"></i>Submit</button>
+                            <button type="button" class="btn btn-secondary" onclick="history.go(-1)">
+                                <i class="fa fa-arrow-circle-left"></i>Back</button>
+                        </div>
+                    </form>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

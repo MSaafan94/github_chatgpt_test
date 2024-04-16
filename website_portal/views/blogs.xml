@@ -1,0 +1,25 @@
+<odoo>
+    <template id="post_breadcrumbs_portal" inherit_id="website_blog.post_breadcrumbs">
+        <xpath expr="//li[hasclass('breadcrumb-item')]" position="before">
+
+            <li class="breadcrumb-item">
+                <a href="/my">My home</a>
+            </li>
+
+        </xpath>
+    </template>
+    <template id="blog_post_short_portal" inherit_id="website_blog.blog_post_short">
+        <xpath expr="//section[@id='o_wblog_index_content']/div/div" position="before">
+            <nav aria-label="breadcrumb"
+                 t-attf-class="breadcrumb flex-nowrap py-0 px-0 css_editable_mode_hidden #{additionnal_classes or ''}">
+                <li class="breadcrumb-item nav-icon fas fa-desktop">
+                    <a href="/my">My Home</a>
+                </li>
+
+            </nav>
+
+        </xpath>
+    </template>
+
+
+</odoo>

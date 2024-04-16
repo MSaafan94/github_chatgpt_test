@@ -1,0 +1,1188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!--    <template id="assets_portal_css" name="Portal css Layout">-->
+  <!--        <link href="/website_portal/static/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"/>-->
+  <!--        <link href="/website_portal/static/css/adminlte.min.css" rel="stylesheet" type="text/css"/>-->
+  <!--        <link href="/website_portal/static/toastr/toastr.min.css" rel="stylesheet" type="text/css"/>-->
+  <!--    </template>-->
+  <!--    <template id="assets_portal_js" name="Portal js Layout">-->
+
+  <!--        <script type="text/javascript" src="/website_portal/static/js/adminlte.min.js"></script>-->
+
+  <!--        <script type="text/javascript" src="/website_portal/static/toastr/toastr.min.js"></script>-->
+  <!--        <script type="text/javascript" src="/website_portal/static/jquery-validation/jquery.validate.min.js"></script>-->
+  <!--        <script type="text/javascript"-->
+  <!-- src="/website_portal/static/jquery-validation/additional-methods.min.js"></script>-->
+  <!--        <script type="text/javascript" src="/website_portal/static/js/select2.min.js"></script>-->
+
+  <!--        <script type="text/javascript" src="/website_portal/static/js/custom.js"></script>-->
+  <!--        <script type="text/javascript" src="/website_portal/static/js/main.js"></script>-->
+  <!--        <script type="text/javascript" src="/website_portal/static/js/fiels.js"></script>-->
+  <!--    </template>-->
+
+  <template id="frontend_portal_layout" name="portal Frontend Layout" inherit_id="web.frontend_layout" primary="True">
+    <xpath expr="//head/link[last()]" position="after">
+      <t t-call-assets="web.assets_common" t-js="false"/>
+      <t t-call-assets="web.assets_frontend" t-js="false"/>
+      <!--            <t t-call-assets="website_portal.assets_portal_css" t-js="false"/>-->
+    </xpath>
+    <xpath expr="//head/script[@id='web.layout.odooscript'] | //head/script[last()]" position="after">
+      <script type="text/javascript">
+                odoo.session_info =<t t-raw="json.dumps(request.env['ir.http'].get_frontend_session_info())"/>
+;
+      </script>
+      <!--            <t t-call-assets="web.assets_common_minimal_js" t-css="false" defer_load="True"/>-->
+      <!--            <t t-call-assets="web.assets_frontend_minimal_js" t-css="false" defer_load="True"/>-->
+      <!--            <t t-call-assets="web.assets_common_lazy" t-css="false" defer_load="True"/>-->
+      <!--            <t t-call-assets="web.assets_frontend_lazy" t-css="false" defer_load="True"/>-->
+      <!--            <t t-call-assets="website_portal.assets_portal_js" t-css="false" defer_load="True"/>-->
+    </xpath>
+    <xpath expr="//body" position="replace">
+      <style>
+                 @media (max-width: 767px) {
+                    .hidden-mobile {
+                      display: none;
+                    }
+                  }
+                .o_portal_docs{
+                display: none !important;
+                }
+                li.breadcrumb-item a {
+                color: #17a2b8 !important;
+                }
+
+                .nav-treeview>.nav-item>.nav-link.active{
+                background-color:#b2dce2 !important;
+                }
+
+                .col {
+                padding: 0rem .5rem !important;
+                }@media (max-width:400px){
+                .create_new {
+                margin-bottom: 13px !important;
+                }}.layout-fixed .main-sidebar{
+
+                z-index: 910;
+                transition: all 400ms ease;
+                background-color: #fff;
+                }.navbar-light .navbar-text {
+                color: #607d8b;
+                }.btn-secondary {
+                color: #fff;
+                background-color: #17a2b8;
+                border-color: #12a0b7;
+
+                font-weight: 500;
+                }.navbar-light {
+                background-color: #ffffff;
+                }li.breadcrumb-item a {
+                color: #6c757d;
+                }.o_notification_manager{
+                z-index: 10000;
+                position: absolute;
+                right: 0;
+                }
+                .layout-fixed .main-sidebar{
+                display: block;
+
+
+                transition: all 400ms ease;
+                background-color: #fff; box-shadow: 0 0px 30px 0 rgb(17 38 146 / 5%);
+                }.layout-navbar-fixed .wrapper .sidebar-dark-primary .brand-link:not([class*=navbar]) {
+                background-color: #fff;
+                border-bottom: 1px solid #dee2e6;
+
+                }span.brand-text.font-weight-light {
+                margin-left: 1rem;
+
+                color: #212529;
+                font-size: 14px;
+                font-weight: 600!important;
+                }.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active, .sidebar-light-primary
+                .nav-sidebar>.nav-item>.nav-link.active {
+                background-color: #17a2b8;
+                color: #fff; }[class*=sidebar-dark] .btn-sidebar, [class*=sidebar-dark] .form-control-sidebar {
+                background-color: #17a2b8;
+                border: 1px solid #ffffff;
+                color: #fff; }[class*=sidebar-dark] .btn-sidebar:focus, [class*=sidebar-dark] .form-control-sidebar:focus {
+                border: 1px solid #ffffff; }[class*=sidebar-dark-] .nav-treeview>.nav-item>.nav-link {
+                color: #6c757d;
+                font-weight: 600; }[class*=sidebar-dark-] .nav-treeview>.nav-item>.nav-link:focus, [class*=sidebar-dark-]
+                .nav-treeview>.nav-item>.nav-link:hover {
+                background-color: #17a2b8;
+                color: #fff; }[class*=sidebar-dark-] .sidebar a {
+
+                color: #6c757d;
+                font-weight: 600; }[class*=sidebar-dark-] .nav-sidebar>.nav-item.menu-open>.nav-link, [class*=sidebar-dark-]
+                .nav-sidebar>.nav-item:hover>.nav-link, [class*=sidebar-dark-] .nav-sidebar>.nav-item>.nav-link:focus {
+                background-color: #17a2b8;
+                color: #fff;
+                }.search::placeholder {
+                color: #fff !important;
+                opacity: 0.9 !important;
+                }
+
+                .search:-ms-input-placeholder {
+                color: #fff !important;opacity: 0.9 !important;
+                }
+
+                .search::-ms-input-placeholder {
+                color: #fff !important;opacity: 0.9 !important;
+                }.content-wrapper {
+                background-color: #eaeaf4;
+                }.ui-datepicker {
+                display: none;
+                padding: 10px 12px;
+                background: #fff;
+                -webkit-box-shadow: 0 0 11px rgba(0, 0, 0, 0.3);
+                -moz-box-shadow: 0 0 11px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 0 11px rgba(0, 0, 0, 0.3);
+                font: 13px/1.55 'Roboto', Arial, sans-serif;
+                text-align: center;
+                color: #666;
+                -webkit-border-radius: 24px;
+                -moz-border-radius: 24px;
+                border-radius: 24px;
+                margin-top: 5px;
+                }
+                .ui-datepicker a {
+                color: #404040;
+                }
+                .ui-datepicker-header {
+                position: relative;
+                margin: -10px -12px 10px;
+                padding: 10px;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+                font-size: 15px;
+                line-height: 27px;
+                }
+                .ui-datepicker-prev,
+                .ui-datepicker-next {
+                position: absolute;
+                top: 0;
+                display: block;
+                width: 47px;
+                height: 47px;
+                font-size: 15px;
+                line-height: 47px;
+                text-decoration: none;
+                cursor: pointer;
+                }
+                .ui-datepicker-prev {
+                left: 0;
+                }
+                .ui-datepicker-next {
+                right: 0;
+                }
+                .ui-datepicker-calendar {
+                border-collapse: collapse;
+                font-size: 13px;
+                line-height: 27px;
+                }
+                .ui-datepicker-calendar th {
+                color: #999;
+                }
+                .ui-datepicker-calendar a,
+                .ui-datepicker-calendar span {
+                display: block;
+                width: 30px;
+                margin: auto;
+                text-decoration: none;
+                color: #404040;
+                }
+                .ui-datepicker-calendar a:hover {
+                background: rgba(0, 0, 0, 0.05);
+                }
+                .ui-datepicker-calendar span {
+                color: #bfbfbf;
+                }
+                .ui-datepicker-today a {
+                font-weight: 700;
+                }
+                .ui-datepicker-calendar .ui-state-active {
+                background: rgba(0, 0, 0, 0.05);
+                cursor: default;
+                }
+                .ui-datepicker-inline {
+                border: 2px solid #e5e5e5;
+                background: #fff;
+                -webkit-box-shadow: none;
+                -moz-box-shadow: none;
+                box-shadow: none;
+                }
+                .ui-datepicker-inline .ui-datepicker-header {
+                line-height: 47px;
+                }
+                .ui-datepicker-inline .ui-datepicker-calendar {
+                width: 100%;
+                }
+                .ui-datepicker-month,
+                .ui-datepicker-year {
+                margin: 0 3px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                padding: 1px;
+                border: 1px dotted #efefef;
+                }
+                .select2-container {
+  box-sizing: border-box;
+  display: inline-block;
+  margin: 0;
+  position: relative;
+  vertical-align: middle; }
+  .select2-container .select2-selection--single {
+    box-sizing: border-box;
+    cursor: pointer;
+    display: block;
+    height: 28px;
+    user-select: none;
+    -webkit-user-select: none; }
+    .select2-container .select2-selection--single .select2-selection__rendered {
+      display: block;
+      padding-left: 8px;
+      padding-right: 20px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap; }
+    .select2-container .select2-selection--single .select2-selection__clear {
+      position: relative; } .select2-container[dir="rtl"] .select2-selection--single .select2-selection__rendered {
+    padding-right: 8px;
+    padding-left: 20px; }
+  .select2-container .select2-selection--multiple {
+    box-sizing: border-box;
+    cursor: pointer;
+    display: block;
+    min-height: 32px;
+    user-select: none;
+    -webkit-user-select: none; }
+    .select2-container .select2-selection--multiple .select2-selection__rendered {
+      display: inline-block;
+      overflow: hidden;
+      padding-left: 8px;
+      text-overflow: ellipsis;
+      white-space: nowrap; }
+  .select2-container .select2-search--inline {
+    float: left; }
+    .select2-container .select2-search--inline .select2-search__field {
+      box-sizing: border-box;
+      border: none;
+      font-size: 100%;
+      margin-top: 5px;
+      padding: 0; }
+      .select2-container .select2-search--inline .select2-search__field::-webkit-search-cancel-button {
+        -webkit-appearance: none; }
+
+.select2-dropdown {
+  background-color: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  left: -100000px;
+  width: 100%;
+  z-index: 1051; }
+
+.select2-results {
+  display: block; }
+
+.select2-results__options {
+  list-style: none;
+  margin: 0;
+  padding: 0; }
+
+.select2-results__option {
+  padding: 6px;
+  user-select: none;
+  -webkit-user-select: none; }
+  .select2-results__option[aria-selected] {
+    cursor: pointer; }
+
+.select2-container--open .select2-dropdown {
+  left: 0; }
+
+.select2-container--open .select2-dropdown--above {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.select2-container--open .select2-dropdown--below {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.select2-search--dropdown {
+  display: block;
+  padding: 4px; }
+  .select2-search--dropdown .select2-search__field {
+    padding: 4px;
+    width: 100%;
+    box-sizing: border-box; }
+    .select2-search--dropdown .select2-search__field::-webkit-search-cancel-button {
+      -webkit-appearance: none; }
+  .select2-search--dropdown.select2-search--hide {
+    display: none; }
+
+.select2-close-mask {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: block;
+  position: fixed;
+  left: 0;
+  top: 0;
+  min-height: 100%;
+  min-width: 100%;
+  height: auto;
+  width: auto;
+  opacity: 0;
+  z-index: 99;
+  background-color: #fff;
+  filter: alpha(opacity=0); }
+
+.select2-hidden-accessible {
+  border: 0 !important;
+  clip: rect(0 0 0 0) !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important; }
+
+.select2-container--default .select2-selection--single {
+  background-color: #fff;
+  border: 1px solid #aaa;
+  border-radius: 4px; }
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #444;
+    line-height: 28px; }
+  .select2-container--default .select2-selection--single .select2-selection__clear {
+    cursor: pointer;
+    float: right;
+    font-weight: bold; }
+  .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #999; }
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 26px;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 20px; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+      border-color: #888 transparent transparent transparent;
+      border-style: solid;
+      border-width: 5px 4px 0 4px;
+      height: 0;
+      left: 50%;
+      margin-left: -4px;
+      margin-top: -2px;
+      position: absolute;
+      top: 50%;
+      width: 0; } .select2-container--default[dir="rtl"] .select2-selection--single .select2-selection__clear {
+  float: left; } .select2-container--default[dir="rtl"] .select2-selection--single .select2-selection__arrow {
+  left: 1px;
+  right: auto; }
+
+.select2-container--default.select2-container--disabled .select2-selection--single {
+  background-color: #eee;
+  cursor: default; }
+  .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__clear {
+    display: none; }
+
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+  border-color: transparent transparent #888 transparent;
+  border-width: 0 4px 5px 4px; }
+
+.select2-container--default .select2-selection--multiple {
+  background-color: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: text; }
+  .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    box-sizing: border-box;
+    list-style: none;
+    margin: 0;
+    padding: 0 5px;
+    width: 100%; }
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered li {
+      list-style: none; }
+  .select2-container--default .select2-selection--multiple .select2-selection__placeholder {
+    color: #999;
+    margin-top: 5px;
+    float: left; }
+  .select2-container--default .select2-selection--multiple .select2-selection__clear {
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-right: 10px; }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #e4e4e4;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    cursor: default;
+    float: left;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 0 5px; }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: #999;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 2px; }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+      color: #333; } .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice, .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__placeholder, .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-search--inline {
+  float: right; } .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice {
+  margin-left: 5px;
+  margin-right: auto; } .select2-container--default[dir="rtl"] .select2-selection--multiple .select2-selection__choice__remove {
+  margin-left: 2px;
+  margin-right: auto; }
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+  border: solid black 1px;
+  outline: 0; }
+
+.select2-container--default.select2-container--disabled .select2-selection--multiple {
+  background-color: #eee;
+  cursor: default; }
+
+.select2-container--default.select2-container--disabled .select2-selection__choice__remove {
+  display: none; }
+
+.select2-container--default.select2-container--open.select2-container--above .select2-selection--single, .select2-container--default.select2-container--open.select2-container--above .select2-selection--multiple {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.select2-container--default.select2-container--open.select2-container--below .select2-selection--single, .select2-container--default.select2-container--open.select2-container--below .select2-selection--multiple {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  border: 1px solid #aaa; }
+
+.select2-container--default .select2-search--inline .select2-search__field {
+  background: transparent;
+  border: none;
+  outline: 0;
+  box-shadow: none;
+  -webkit-appearance: textfield; }
+
+.select2-container--default .select2-results > .select2-results__options {
+  max-height: 200px;
+  overflow-y: auto; }
+
+.select2-container--default .select2-results__option[role=group] {
+  padding: 0; }
+
+.select2-container--default .select2-results__option[aria-disabled=true] {
+  color: #999; }
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+  background-color: #ddd; }
+
+.select2-container--default .select2-results__option .select2-results__option {
+  padding-left: 1em; }
+  .select2-container--default .select2-results__option .select2-results__option .select2-results__group {
+    padding-left: 0; }
+  .select2-container--default .select2-results__option .select2-results__option .select2-results__option {
+    margin-left: -1em;
+    padding-left: 2em; }
+    .select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option {
+      margin-left: -2em;
+      padding-left: 3em; }
+      .select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option {
+        margin-left: -3em;
+        padding-left: 4em; }
+        .select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option {
+          margin-left: -4em;
+          padding-left: 5em; }
+          .select2-container--default .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option .select2-results__option {
+            margin-left: -5em;
+            padding-left: 6em; }
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: #5897fb;
+  color: white; }
+
+.select2-container--default .select2-results__group {
+  cursor: default;
+  display: block;
+  padding: 6px; }
+
+.select2-container--classic .select2-selection--single {
+  background-color: #f7f7f7;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  outline: 0;
+  background-image: -webkit-linear-gradient(top, white 50%, #eeeeee 100%);
+  background-image: -o-linear-gradient(top, white 50%, #eeeeee 100%);
+  background-image: linear-gradient(to bottom, white 50%, #eeeeee 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0); }
+  .select2-container--classic .select2-selection--single:focus {
+    border: 1px solid #5897fb; }
+  .select2-container--classic .select2-selection--single .select2-selection__rendered {
+    color: #444;
+    line-height: 28px; }
+  .select2-container--classic .select2-selection--single .select2-selection__clear {
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    margin-right: 10px; }
+  .select2-container--classic .select2-selection--single .select2-selection__placeholder {
+    color: #999; }
+  .select2-container--classic .select2-selection--single .select2-selection__arrow {
+    background-color: #ddd;
+    border: none;
+    border-left: 1px solid #aaa;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    height: 26px;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 20px;
+    background-image: -webkit-linear-gradient(top, #eeeeee 50%, #cccccc 100%);
+    background-image: -o-linear-gradient(top, #eeeeee 50%, #cccccc 100%);
+    background-image: linear-gradient(to bottom, #eeeeee 50%, #cccccc 100%);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFCCCCCC', GradientType=0); }
+    .select2-container--classic .select2-selection--single .select2-selection__arrow b {
+      border-color: #888 transparent transparent transparent;
+      border-style: solid;
+      border-width: 5px 4px 0 4px;
+      height: 0;
+      left: 50%;
+      margin-left: -4px;
+      margin-top: -2px;
+      position: absolute;
+      top: 50%;
+      width: 0; } .select2-container--classic[dir="rtl"] .select2-selection--single .select2-selection__clear {
+  float: left; } .select2-container--classic[dir="rtl"] .select2-selection--single .select2-selection__arrow {
+  border: none;
+  border-right: 1px solid #aaa;
+  border-radius: 0;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  left: 1px;
+  right: auto; }
+
+.select2-container--classic.select2-container--open .select2-selection--single {
+  border: 1px solid #5897fb; }
+  .select2-container--classic.select2-container--open .select2-selection--single .select2-selection__arrow {
+    background: transparent;
+    border: none; }
+    .select2-container--classic.select2-container--open .select2-selection--single .select2-selection__arrow b {
+      border-color: transparent transparent #888 transparent;
+      border-width: 0 4px 5px 4px; }
+
+.select2-container--classic.select2-container--open.select2-container--above .select2-selection--single {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  background-image: -webkit-linear-gradient(top, white 0%, #eeeeee 50%);
+  background-image: -o-linear-gradient(top, white 0%, #eeeeee 50%);
+  background-image: linear-gradient(to bottom, white 0%, #eeeeee 50%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0); }
+
+.select2-container--classic.select2-container--open.select2-container--below .select2-selection--single {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background-image: -webkit-linear-gradient(top, #eeeeee 50%, white 100%);
+  background-image: -o-linear-gradient(top, #eeeeee 50%, white 100%);
+  background-image: linear-gradient(to bottom, #eeeeee 50%, white 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEEEEEE', endColorstr='#FFFFFFFF', GradientType=0); }
+
+.select2-container--classic .select2-selection--multiple {
+  background-color: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  cursor: text;
+  outline: 0; }
+  .select2-container--classic .select2-selection--multiple:focus {
+    border: 1px solid #5897fb; }
+  .select2-container--classic .select2-selection--multiple .select2-selection__rendered {
+    list-style: none;
+    margin: 0;
+    padding: 0 5px; }
+  .select2-container--classic .select2-selection--multiple .select2-selection__clear {
+    display: none; }
+  .select2-container--classic .select2-selection--multiple .select2-selection__choice {
+    background-color: #e4e4e4;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    cursor: default;
+    float: left;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 0 5px; }
+  .select2-container--classic .select2-selection--multiple .select2-selection__choice__remove {
+    color: #888;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 2px; }
+    .select2-container--classic .select2-selection--multiple .select2-selection__choice__remove:hover {
+      color: #555; } .select2-container--classic[dir="rtl"] .select2-selection--multiple .select2-selection__choice {
+  float: right; } .select2-container--classic[dir="rtl"] .select2-selection--multiple .select2-selection__choice {
+  margin-left: 5px;
+  margin-right: auto; } .select2-container--classic[dir="rtl"] .select2-selection--multiple .select2-selection__choice__remove {
+  margin-left: 2px;
+  margin-right: auto; }
+
+.select2-container--classic.select2-container--open .select2-selection--multiple {
+  border: 1px solid #5897fb; }
+
+.select2-container--classic.select2-container--open.select2-container--above .select2-selection--multiple {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+
+.select2-container--classic.select2-container--open.select2-container--below .select2-selection--multiple {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
+
+.select2-container--classic .select2-search--dropdown .select2-search__field {
+  border: 1px solid #aaa;
+  outline: 0; }
+
+.select2-container--classic .select2-search--inline .select2-search__field {
+  outline: 0;
+  box-shadow: none; }
+
+.select2-container--classic .select2-dropdown {
+  background-color: white;
+  border: 1px solid transparent; }
+
+.select2-container--classic .select2-dropdown--above {
+  border-bottom: none; }
+
+.select2-container--classic .select2-dropdown--below {
+  border-top: none; }
+
+.select2-container--classic .select2-results > .select2-results__options {
+  max-height: 200px;
+  overflow-y: auto; }
+
+.select2-container--classic .select2-results__option[role=group] {
+  padding: 0; }
+
+.select2-container--classic .select2-results__option[aria-disabled=true] {
+  color: grey; }
+
+.select2-container--classic .select2-results__option--highlighted[aria-selected] {
+  background-color: #3875d7;
+  color: white; }
+
+.select2-container--classic .select2-results__group {
+  cursor: default;
+  display: block;
+  padding: 6px; }
+
+.select2-container--classic.select2-container--open .select2-dropdown {
+  border-color: #5897fb; }
+
+      </style>
+      <body class="sidebar-mini control-sidebar-slide-open layout-fixed layout-navbar-fixed" style="overflow: scroll;">
+        <div class="wrapper">
+          <!-- Preloader -->
+          <div id="preloader" class="preloader flex-column justify-content-center align-items-center">
+            <img class="animation__shake" t-att-src="'/web/image?model=res.company&amp;id=%s&amp;field=logo'  % res_company.id" t-att-alt="res_company.name" height="60" width="60"/>
+          </div>
+          <!-- Navbar -->
+          <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a onclick="closeNav()" class="nav-link" data-widget="pushmenu" href="#" role="button">
+                  <i class="fas fa-bars"></i>
+                </a>
+              </li>
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                </a>
+              </li>
+              <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <img alt="" class="user-image img-circle elevation-2" t-att-src="'/web/image?model=hr.employee&amp;id=%s&amp;field=image_128'  % user_id.employee_id.id"/>
+
+
+                  <span class="d-none d-md-inline">
+                    <span t-if="user_id.employee_id" t-esc="user_id.employee_id.name[:23] + '...' if user_id.name and len(user_id.employee_id.name) &gt; 25 else user_id.employee_id.name"/>
+                  </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                  <!-- User image -->
+                  <li class="user-header bg-info">
+
+                    <img alt="" class=" img-circle elevation-2" t-att-src="'/web/image?model=hr.employee&amp;id=%s&amp;field=image_128'  % user_id.employee_id.id"/>
+
+                    <p>
+                      <span t-if="user_id.employee_id" t-esc="user_id.employee_id.name[:23] + '...' if user_id.name and len(user_id.employee_id.name) &gt; 25 else user_id.employee_id.name"/>
+
+                      <br/>
+                      <span t-esc="user_id.email"/>
+
+
+                    </p>
+                  </li>
+                  <!-- Menu Body -->
+
+                  <!-- Menu Footer-->
+                  <li class="user-footer">
+                    <a href="/my/profile" class="btn btn-default btn-flat">
+                      <i class="nav-icon fas fa-user-edit"></i>
+                                            Profile
+                    </a>
+                    <a href="/web/session/logout?redirect=/" class="btn btn-default btn-flat float-right">
+                      <i class="nav-icon fas fa-sign-out-alt"></i>
+                                            Sign out
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+          <!-- /.navbar -->
+
+          <!-- Main Sidebar Container -->
+          <aside class="main-sidebar  main-sidebar-custom sidebar-dark-primary elevation-2">
+            <!-- Brand Logo -->
+            <a href="/my" class="brand-link">
+              <img t-att-src="'/web/image?model=res.company&amp;id=%s&amp;field=logo'  % res_company.id" class="brand-image " t-att-alt="'Logo of %s' % res_company.name" t-att-title="res_company.name"/>
+
+              <span class="brand-text font-weight-light">
+                <span t-esc="res_company.name"/>
+              </span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+              <!-- Sidebar user panel (optional) -->
+              <!-- SidebarSearch Form -->
+              <div class="form-inline mt-3 ">
+                <div class="input-group" data-widget="sidebar-search">
+                  <input class="form-control form-control-sidebar search" type="search" placeholder="Menu Search" aria-label="Menu Search"/>
+                  <div class="input-group-append">
+                    <button class="btn btn-sidebar">
+                      <i class="fas fa-search fa-fw"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sidebar Menu -->
+              <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                  <!-- Add icons to the links using the .nav-icon class
+                                         with font-awesome or any other icon font library -->
+                  <li t-att-class="'nav-item menu-open' if  request.httprequest.path == '/my' or request.httprequest.path == '/my/home' else 'nav-item '">
+                    <a href="/my/home" t-att-class="'nav-link active' if request.httprequest.path == '/my' or request.httprequest.path == '/my/home' else 'nav-link'">
+                      <i class="nav-icon fas fa-desktop"></i>
+                      <p>
+                                                Dashboard
+                      </p>
+                    </a>
+                  </li>
+                  <!--                                    <li t-att-class="'nav-item menu-open' if request.httprequest.path == '/my/reimbursement' or request.httprequest.path == '/my/pd' or request.httprequest.path == '/my/profile' or request.httprequest.path == '/my/leaves' else 'nav-item '">-->
+                  <li t-att-class="'nav-item ' if request.httprequest.path == '/my/reimbursement' or request.httprequest.path == '/my/pd' or request.httprequest.path == '/my/profile' or request.httprequest.path == '/my/leaves' else 'nav-item '" id='test_nav'>
+
+                    <a onclick="toogleNav('test_nav')" href="#" t-att-class="'nav-link active' if request.httprequest.path == '/my/leaves'  else 'nav-link'">
+                      <i class="nav-icon fas fa-users-cog"></i>
+                      <p>
+                                                Human Resource
+                        <i class="right fas fa-angle-left" ></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="/my/profile" t-att-class="'nav-link active' if  request.httprequest.path == '/my/profile'  else 'nav-link'">
+                          <i class="fas fa-user-alt nav-icon"></i>
+                          <p>My Profile</p>
+                        </a>
+                      </li>
+                      <li class="nav-item" t-if="user_id.employee_id.emp_state == 'active'">
+                        <a href="/my/attendances" t-att-class="'nav-link active' if  request.httprequest.path == '/my/attendances'  else 'nav-link'">
+                          <i class="fas fa-calendar-alt nav-icon"></i>
+                          <p>My Attendances</p>
+                        </a>
+                      </li>
+                      <li class="nav-item" t-if="user_id.employee_id.emp_state == 'active'">
+                        <a href="/my/leaves" t-att-class="'nav-link active' if  request.httprequest.path == '/my/leaves'  else 'nav-link'">
+                          <i class="fas fa-calendar-alt nav-icon"></i>
+                          <p>Leaves Request</p>
+                        </a>
+                      </li>
+                      <!--                                            <li class="nav-item">-->
+                      <!--                                                <a href="/my/leave_request"-->
+                      <!-- t-att-class="'nav-link active' if request.httprequest.path == '/my/reimbursement'  else 'nav-link'">-->
+                      <!--                                                    <i class="fas fa-calendar-check nav-icon"></i>-->
+                      <!--                                                    <p>Early Departure</p>-->
+                      <!--                                                </a>-->
+                      <!--                                            </li>-->
+                      <li class="nav-item" t-if="user_id.employee_id.emp_state == 'active'">
+                        <a href="/my/reimbursement" t-att-class="'nav-link active' if  request.httprequest.path == '/my/reimbursement'  else 'nav-link'">
+                          <i class="fas fa-receipt nav-icon"></i>
+                          <p>Reimbursement</p>
+                        </a>
+                      </li>
+                      <li class="nav-item" t-if="user_id.employee_id.emp_state == 'active'">
+                        <a href="/my/pd" t-att-class="'nav-link active' if  request.httprequest.path == '/my/pd'  else 'nav-link'">
+                          <i class="fas fa-graduation-cap nav-icon"></i>
+                          <p>PD Request</p>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li t-if="user_id.employee_id.emp_state == 'active'" t-att-class="'nav-item ' if request.httprequest.path == '/my/purchase_request' or request.httprequest.path == '/my/purchase_request/submit' else 'nav-item '" id="test_nav2">
+                    <a onclick="toogleNav('test_nav2')" href="#" t-att-class="'nav-link active' if request.httprequest.path == '/my/purchase_request'  or request.httprequest.path == '/my/purchase_request/submit' else 'nav-link'">
+                      <i class="nav-icon fas fa-credit-card"></i>
+                      <p>
+                                                Operations
+                        <i class="right fas fa-angle-left" ></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="/my/purchase_request" t-att-class="'nav-link active' if  request.httprequest.path == '/my/purchase_request'  or request.httprequest.path == '/my/purchase_request/submit' else 'nav-link'">
+                          <i class="fas fa-shopping-basket nav-icon"></i>
+                          <p>Requisition
+                          </p>
+                        </a>
+                      </li>
+                        <li class="nav-item" t-if="user_id.employee_id.emp_state == 'active'">
+                            <a href="/my/purchase_request?approval=1"
+                               t-att-class="'nav-link active' if (request.httprequest.path == '/my/purchase_request'  or request.httprequest.path == '/my/purchase_request/submit') and approval  else 'nav-link'">
+                                <i class="fas fa-business-time nav-icon"></i>
+                                <p>Requisition Approval</p>
+                            </a>
+                        </li>
+                    <li class="nav-item" t-if="user_id.employee_id.emp_state == 'active'">
+                        <a href="/my/maintenance_request"
+                           t-att-class="'nav-link active' if  request.httprequest.path == '/my/maintenance_request' and not approval  else 'nav-link'">
+                            <i class="fas fa-wrench nav-icon"></i>
+                            <p>Maintenance Request</p>
+                        </a>
+                    </li>
+                    <li class="nav-item" t-if="user_id.employee_id.emp_state == 'active' and False">
+                        <a href="/my/maintenance_request?approval=1"
+                           t-att-class="'nav-link active' if  request.httprequest.path == '/my/maintenance_request' and  approval  else 'nav-link'">
+                            <i class="fas fa-business-time  nav-icon"></i>
+                            <p>Maintenance Request Approval</p>
+                        </a>
+                    </li>
+                    </ul>
+                  </li>
+
+                  <li t-if="user_id.employee_id.emp_state == 'active'" t-att-class="'nav-item ' if request.httprequest.path == '/blog' or request.httprequest.path == '/blog' else 'nav-item '" id="test_nav3">
+                    <a onclick="toogleNav('test_nav3')" href="#" t-att-class="'nav-link active' if request.httprequest.path == '/blog'  or request.httprequest.path == '/blog' else 'nav-link'">
+                      <i class="nav-icon fas fa-desktop"></i>
+                      <p>
+                                                Information Center
+                        <i class="right fas fa-angle-left" ></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="https://drive.google.com/drive/folders/1gtrcq1hxyV4dFHNeS1ErqiQqb6ecMN4r?usp=drive_link" t-att-class="'nav-link active' if  request.httprequest.path == '/blog'  or request.httprequest.path == '/blog' else 'nav-link'">
+                          <i class="fas fa-balance-scale"/>
+                          <p>Policies / Handbooks
+                          </p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="https://drive.google.com/drive/folders/1mRdZsfBJCR4o8IoiAz88Oe0CDC58HgLg?usp=drive_link" t-att-class="'nav-link active' if  request.httprequest.path == '/blog'  or request.httprequest.path == '/blog' else 'nav-link'">
+                          <i class="fas fa-receipt nav-icon"></i>
+                          <p>Forms templates
+                          </p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="/blog" t-att-class="'nav-link active' if  request.httprequest.path == '/blog'  or request.httprequest.path == '/blog' else 'nav-link'">
+                          <i class="nav-icon fas fa-desktop"></i>
+                          <p>Blogs
+                          </p>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </nav>
+              <!-- /.sidebar-menu -->
+            </div>
+            <div class="sidebar-custom">
+              <a href="/my/profile" class="btn btn-secondary hide-on-collapse">
+                <i class="nav-icon fas fa-user-edit"></i>
+                <!--                                Profile Information-->
+              </a>
+              <a href="/web/session/logout?redirect=/" alt="Sign Out" class="btn btn-link pos-right">
+                <i class=" fas fa-sign-out-alt"></i>
+              </a>
+            </div>
+            <!-- /.sidebar -->
+          </aside>
+
+          <!-- Content Wrapper. Contains page content -->
+          <div id="main" class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+              <div class="container-fluid" style="overflow: auto !important">
+
+                <div class="row mb-2">
+
+                  <div class="col-md-12">
+                    <t t-raw="0"/>
+                  </div>
+                </div>                <!-- /.row -->
+              </div>              <!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+
+
+            <!-- /.content -->
+          </div>
+          <!-- /.content-wrapper -->
+
+
+          <!-- Main Footer -->
+          <footer class="main-footer">
+            <!-- To the right -->
+            <div class="float-right d-none d-sm-inline">
+
+            </div>
+            <!-- Default to the left -->
+            <strong>Copyright  <a style="color:#f58026" target="_blank" href="https://archer.solutions/">
+                            Archer Solutions</a>.
+            </strong>
+                        All rights reserved.
+          </footer>
+        </div>
+        <style type="text/css" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.css"></style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+        <script type="text/javascript">
+                
+                function toogleNav(id){
+                  document.getElementById(id).classList.toggle("menu-open");
+                }
+        </script>
+
+        <script>
+
+                 
+
+              (function () {
+              setTimeout(() =&gt; {
+                const preloader = document.getElementById('preloader');
+                console.log(preloader);
+                preloader.style.display = 'none';
+                }, 1000);
+              })();
+
+                     function closeNav() {
+                          var element = document.getElementsByTagName("body");
+                    console.log(element)
+                            if (element[0].classList.contains("sidebar-collapse")) {
+                                    element[0].classList.remove("sidebar-collapse");
+                                } else {
+                                    element[0].classList.add("sidebar-collapse");
+                                    element[0].classList.add("sidebar-closed");
+                                }
+                                if (element[0].classList.contains("sidebar-open")) {
+                                    element[0].classList.remove("sidebar-open");
+                                    element[0].classList.add("sidebar-closed");
+                                } else {
+                                    element[0].classList.add("sidebar-open");
+                                    element[0].classList.remove("sidebar-closed");
+                                    element[0].classList.remove("sidebar-collapse");
+                                }
+                    }
+                    $(document).ready(function() {
+                    $('.select2-multi').select2({
+                    tags: true,
+                    theme: "classic",
+                    dropdownParent: $('#select-multi_container'),
+                    maximumSelectionLength: 5,
+                    });
+                    $('.select2-multi').on('select2:opening select2:closing', function( event ) {
+                        var $searchfield = $(this).parent().find('.select2-search__field');
+                        $searchfield.prop('disabled', true);
+                    });
+
+                    });
+        </script>
+      </body>
+    </xpath>
+  </template>
+
+  <template name="My Portal" t-name="website_portal.portal_my_home" inherit_id="portal.portal_my_home">
+    <xpath expr="//div[hasclass('o_portal_my_home')]/h3" position="replace"/>
+    <!--        <xpath expr="//div[hasclass('o_portal_docs')]" position="replace">-->
+    <!--            <div class="o_portal_docs" style="display:none;"/>-->
+    <!--        </xpath>-->
+    <xpath expr="//div[hasclass('o_portal_my_home')]" position="before">
+      <!--            <div class="row" t-if="user_id.employee_id.emp_state == 'active'">-->
+      <div class="row" >
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-info">
+            <div class="inner">
+              <h3>
+                <span t-esc="request.env['hr.leave'].sudo().search_count([('holiday_status_id.active','=',True),('employee_id', '=', user_id.employee_id.id)])"/>
+              </h3>
+
+              <p>Leaves Request</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <a href="/my/leaves" class="small-box-footer">More info
+              <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-warning">
+            <div class="inner">
+              <h3>
+                <span t-esc="request.env['hr.expense'].sudo().search_count([('employee_id', '=', user_id.employee_id.id)])"/>
+              </h3>
+
+              <p>Reimbursement</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-receipt "></i>
+            </div>
+            <a href="/my/reimbursement" class="small-box-footer">More info
+              <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+        <!-- fix for small devices only -->
+        <!--                <div class="clearfix hidden-mobile hidden-md-up"></div>-->
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-danger">
+            <div class="inner">
+              <h3>
+                <span t-esc="request.env['pd.request'].sudo().search_count([('employee_id', '=', user_id.employee_id.id)])"/>
+              </h3>
+
+              <p>PD Request</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <a href="/my/pd" class="small-box-footer">More info
+              <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <!-- small box -->
+          <div class="small-box bg-success">
+            <div class="inner">
+              <h3>
+                <span t-esc="request.env['material.purchase.requisition'].sudo().search_count([('employee_id', '=', user_id.employee_id.id)])"/>
+              </h3>
+
+              <p>Requisition</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-shopping-basket"></i>
+            </div>
+            <a href="/my/purchase_request" class="small-box-footer">More info
+              <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+        <div class="row" t-if="user_id.employee_id.emp_state == 'active'">
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>
+                            <span
+                                    t-esc="request.env['maintenance.request'].sudo().search_count([('employee_id', '=', user_id.employee_id.id)])"/>
+                        </h3>
+
+                        <p>Maintenance Request</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                    <a href="/my/maintenance_request" class="small-box-footer">More info
+                        <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </xpath>
+  </template>
+
+
+  <template id="portal.portal_layout" name="Portal Layout">
+    <t t-call="website_portal.frontend_portal_layout">
+      <t t-set="is_portal" t-value="True"/>
+
+      <div t-if="not no_breadcrumbs and not my_details and not breadcrumbs_searchbar" class="o_portal  ">
+        <div class="row align-items-center bg-white no-gutters border rounded">
+          <div class="col">
+            <t t-call="portal.portal_breadcrumbs"></t>
+          </div>
+          <div t-if="prev_record or next_record" class="col flex-grow-0">
+            <t t-call='portal.record_pager'/>
+          </div>
+        </div>
+      </div>
+
+      <t t-if="my_details">
+        <div class=" mt-4">
+
+          <t t-raw="0"/>
+
+          <div id="o_my_sidebar" class="col-12 col-md col-lg-4 col-xl-3 o_my_sidebar">
+            <div class="o_my_contact" t-if="sales_user">
+              <t t-call="portal.portal_contact"/>
+            </div>
+            <div class="o_portal_my_details">
+              <!--                            <h4>Details-->
+              <!--                                <a role="button" href="/my/account" class="btn btn-sm btn-link">-->
+              <!--                                    <i class="fa fa-pencil"/>-->
+              <!--                                    Edit-->
+              <!--                                </a>-->
+              <!--                            </h4>-->
+              <!--                            <hr class="mt-1 mb-0"/>-->
+              <!--                            <div t-field="user_id.partner_id"-->
+              <!-- t-options='{"widget": "contact", "fields": ["email", "phone", "address", "name"]}'/>-->
+            </div>
+            <div class="o_my_archives" t-if="archive_groups">
+              <t t-call="portal.portal_archive_groups"/>
+            </div>
+          </div>
+        </div>
+      </t>
+      <t t-else="">
+        <t t-raw="0"/>
+      </t>
+
+    </t>
+  </template>
+
+
+</odoo>
